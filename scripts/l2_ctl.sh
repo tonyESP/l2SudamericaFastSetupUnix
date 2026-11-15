@@ -116,12 +116,13 @@ print("1" if srv.get("nvidia_af_16x") else "0")
 print("1" if srv.get("gamemode") else "0")
 print("1" if srv.get("cpu_pinning") else "0")
 print("1" if srv.get("tcp_nodelay") else "0")
+print("1" if srv.get("ram_prewarm") else "0")
 ' "${L2_CONFIG_DIR}/servers.json" "${s_id}") || {
         log_error "Servidor no encontrado en servers.json: ${s_id}"
         exit 1
     }
 
-    local exe_rel runner_name proxy_host proxy_port opt_dxvk opt_mangohud opt_esync opt_fsync opt_af16x opt_gamemode opt_cpu_pinning opt_tcp_nodelay
+    local exe_rel runner_name proxy_host proxy_port opt_dxvk opt_mangohud opt_esync opt_fsync opt_af16x opt_gamemode opt_cpu_pinning opt_tcp_nodelay opt_ram_prewarm
     {
         read -r exe_rel
         read -r runner_name
@@ -135,6 +136,7 @@ print("1" if srv.get("tcp_nodelay") else "0")
         read -r opt_gamemode
         read -r opt_cpu_pinning
         read -r opt_tcp_nodelay
+        read -r opt_ram_prewarm
     } <<< "${cfg_json}"
 
     local client_dir="${L2_CLIENTS_DIR}/${s_id}"
@@ -161,13 +163,30 @@ print("1" if srv.get("tcp_nodelay") else "0")
     fi
 
     _L2_AUTH_PROXY_PID=""
+    _L2_PREWARM_PID=""
     cleanup_run() {
-        if [[ -n "${_L2_AUTH_PROXY_PID:-}" ]] && kill -0 "${_L2_AUTH_PROXY_PID}" 2>/dev/null; then
-            kill "${_L2_AUTH_PROXY_PID}" 2>/dev/null || true
-            wait "${_L2_AUTH_PROXY_PID}" 2>/dev/null || true
-        fi
+        for _pid in "${_L2_AUTH_PROXY_PID:-}" "${_L2_PREWARM_PID:-}"; do
+            if [[ -n "${_pid}" ]] && kill -0 "${_pid}" 2>/dev/null; then
+                kill "${_pid}" 2>/dev/null || true
+                wait "${_pid}" 2>/dev/null || true
+            fi
+        done
     }
     trap cleanup_run EXIT
+
+    if [[ "${opt_ram_prewarm}" == "1" ]]; then
+        (
+            for d in animations systextures textures staticmeshes maps; do
+                if [[ -d "${client_dir}/${d}" ]]; then
+                    find "${client_dir}/${d}" -type f -exec cat {} + > /dev/null 2>&1 || true
+                fi
+            done
+        ) &
+        _L2_PREWARM_PID=$!
+        renice -n 19 -p "${_L2_PREWARM_PID}" >/dev/null 2>&1 || true
+        ionice -c 3 -p "${_L2_PREWARM_PID}" >/dev/null 2>&1 || true
+        log_info "RAM Page-Cache Pre-Warm activo en segundo plano."
+    fi
 
     if [[ -n "${proxy_host}" ]]; then
         local listen_port="${L2_AUTH_PROXY_PORT:-21060}"
