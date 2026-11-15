@@ -113,12 +113,15 @@ print("1" if srv.get("mangohud") else "0")
 print("1" if srv.get("wine_esync") else "0")
 print("1" if srv.get("wine_fsync") else "0")
 print("1" if srv.get("nvidia_af_16x") else "0")
+print("1" if srv.get("gamemode") else "0")
+print("1" if srv.get("cpu_pinning") else "0")
+print("1" if srv.get("tcp_nodelay") else "0")
 ' "${L2_CONFIG_DIR}/servers.json" "${s_id}") || {
         log_error "Servidor no encontrado en servers.json: ${s_id}"
         exit 1
     }
 
-    local exe_rel runner_name proxy_host proxy_port opt_dxvk opt_mangohud opt_esync opt_fsync opt_af16x
+    local exe_rel runner_name proxy_host proxy_port opt_dxvk opt_mangohud opt_esync opt_fsync opt_af16x opt_gamemode opt_cpu_pinning opt_tcp_nodelay
     {
         read -r exe_rel
         read -r runner_name
@@ -129,6 +132,9 @@ print("1" if srv.get("nvidia_af_16x") else "0")
         read -r opt_esync
         read -r opt_fsync
         read -r opt_af16x
+        read -r opt_gamemode
+        read -r opt_cpu_pinning
+        read -r opt_tcp_nodelay
     } <<< "${cfg_json}"
 
     local client_dir="${L2_CLIENTS_DIR}/${s_id}"
@@ -186,7 +192,12 @@ print("1" if srv.get("nvidia_af_16x") else "0")
     export DXVK_CONFIG_FILE="${client_system_dir}/dxvk.conf"
     export WINEDEBUG="${WINEDEBUG:--all}"
     export __GL_THREADED_OPTIMIZATIONS="${__GL_THREADED_OPTIMIZATIONS:-1}"
+    export PULSE_LATENCY_MSEC="${PULSE_LATENCY_MSEC:-60}"
 
+    if [[ "${opt_tcp_nodelay}" == "1" ]]; then
+        export L2_TCP_NODELAY=1
+        log_info "Red TCP: TCP_NODELAY activo (sin retardo de Nagle)."
+    fi
     if [[ "${opt_esync}" == "1" ]]; then
         export WINEESYNC=1
         export STAGING_SHARED_MEMORY=1
@@ -204,19 +215,45 @@ print("1" if srv.get("nvidia_af_16x") else "0")
         if [[ ! -f "${client_system_dir}/d3d9.dll" ]] || ! cmp -s "${L2_TOOLS_DIR}/dxvk_32/d3d9.dll" "${client_system_dir}/d3d9.dll"; then
             cp -f "${L2_TOOLS_DIR}/dxvk_32/d3d9.dll" "${client_system_dir}/d3d9.dll"
         fi
+        if [[ -f "${L2_TOOLS_DIR}/dxvk_32/dxgi.dll" ]]; then
+            if [[ ! -f "${client_system_dir}/dxgi.dll" ]] || ! cmp -s "${L2_TOOLS_DIR}/dxvk_32/dxgi.dll" "${client_system_dir}/dxgi.dll"; then
+                cp -f "${L2_TOOLS_DIR}/dxvk_32/dxgi.dll" "${client_system_dir}/dxgi.dll"
+            fi
+        fi
         export DXVK_STATE_CACHE_PATH="${L2_TOOLS_DIR}/dxvk_cache"
-        export WINEDLLOVERRIDES="d3d9=n,b${WINEDLLOVERRIDES:+;${WINEDLLOVERRIDES}}"
+        export WINEDLLOVERRIDES="d3d9=n,b;dxgi=n,b${WINEDLLOVERRIDES:+;${WINEDLLOVERRIDES}}"
         log_info "Backend gráfico: DXVK (Vulkan) + State Cache activo."
     fi
 
     local -a launch_prefix=()
+    if [[ "${opt_cpu_pinning}" == "1" ]] && command -v lscpu >/dev/null 2>&1; then
+        local phys_cpus phys_count
+        phys_cpus=$(lscpu -p=CPU,CORE | grep -v '^#' | awk -F, '!seen[$2]++ {printf "%s%s", (c++?",":""), $1}')
+        phys_count=$(awk -F, '{print NF}' <<< "${phys_cpus}")
+        if [[ -n "${phys_cpus}" && "${phys_count}" -gt 0 ]]; then
+            export WINE_CPU_TOPOLOGY="${phys_count}:${phys_cpus}"
+            launch_prefix+=(taskset -c "${phys_cpus}")
+            log_info "CPU Pinning: ${phys_count} núcleos físicos (${phys_cpus})."
+        fi
+    fi
+
+    if [[ "${opt_gamemode}" == "1" ]] && command -v gamemoderun >/dev/null 2>&1; then
+        launch_prefix+=(gamemoderun)
+        log_info "GameMode activo (CPU performance + GPU high-perf)."
+    fi
+
     if [[ "${opt_mangohud}" == "1" ]]; then
-        if [[ "${opt_dxvk}" == "1" ]]; then
+        if [[ "${opt_dxvk}" == "1" && -d "${L2_TOOLS_DIR}/mangohud/layer.d" ]]; then
+            export VK_ADD_LAYER_PATH="${L2_TOOLS_DIR}/mangohud/layer.d${VK_ADD_LAYER_PATH:+:${VK_ADD_LAYER_PATH}}"
+            export MANGOHUD=1
+            export MANGOHUD_CONFIG="${MANGOHUD_CONFIG:-position=top-right,fps,frametime,frame_timing=1,cpu_stats,gpu_stats,font_size=18,background_alpha=0.45,toggle_hud=Shift_R+F12}"
+            log_info "Telemetría MangoHud 32-bit activa (top-right, toggle: Shift_R+F12)."
+        elif [[ "${opt_dxvk}" == "1" ]]; then
             export DXVK_HUD="${DXVK_HUD:-fps,frametimes,gpuload,scale=0.85,opacity=0.8}"
             log_info "Telemetría DXVK HUD activa (fps, frametimes, gpuload)."
         elif command -v mangohud >/dev/null 2>&1; then
-            export MANGOHUD_CONFIG="${MANGOHUD_CONFIG:-fps,frametime,frame_timing=1,cpu_stats,gpu_stats,vram,ram,font_size=18,position=top-left,toggle_hud=Shift_R+F12}"
-            launch_prefix=(mangohud --dlsym)
+            export MANGOHUD_CONFIG="${MANGOHUD_CONFIG:-position=top-right,fps,frametime,frame_timing=1,cpu_stats,gpu_stats,font_size=18,background_alpha=0.45,toggle_hud=Shift_R+F12}"
+            launch_prefix+=(mangohud --dlsym)
             log_info "Telemetría MangoHud activa (toggle: Shift_R+F12)."
         fi
     fi

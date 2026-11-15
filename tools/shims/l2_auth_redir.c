@@ -2,6 +2,7 @@
 #include <arpa/inet.h>
 #include <dlfcn.h>
 #include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <stdlib.h>
 #include <sys/socket.h>
 
@@ -10,12 +11,19 @@
  * configurable via L2_AUTH_TARGET_PORT) and redirects it to 127.0.0.1 on
  * L2_AUTH_PROXY_PORT (default 21060) so Wine's WSAAsyncSelect completes the
  * local TCP handshake before L2.exe overwrites FD_CONNECT with FD_READ.
+ * Also disables Nagle's algorithm (TCP_NODELAY) when L2_TCP_NODELAY=1.
  */
 int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen) {
     int (*orig_connect)(int, const struct sockaddr *, socklen_t) =
         dlsym(RTLD_NEXT, "connect");
 
     if (addr && addr->sa_family == AF_INET && addrlen >= sizeof(struct sockaddr_in)) {
+        const char *nodelay_env = getenv("L2_TCP_NODELAY");
+        if (nodelay_env && nodelay_env[0] == '1') {
+            int one = 1;
+            setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, &one, sizeof(one));
+        }
+
         const struct sockaddr_in *in = (const struct sockaddr_in *)addr;
         const char *target_env = getenv("L2_AUTH_TARGET_PORT");
         int target_port = target_env ? atoi(target_env) : 2106;

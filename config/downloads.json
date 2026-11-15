@@ -163,6 +163,37 @@
         "music"
       ],
       "staging_dir": "clients/l2sudamerica-optimized"
+    },
+    "l2sudamerica-lab": {
+      "server_id": "l2sudamerica-lab",
+      "name": "L2 Sudamerica (Interlude x10 - Lab Experimental)",
+      "chronicle": "Interlude (C6)",
+      "client": {
+        "filename": "l2Sudamerica_fafureon_30.rar",
+        "estimated_size_mb": 3646,
+        "sha256": "",
+        "urls": [
+          "https://drive.google.com/file/d/1EcLm1ln28486fSbX624VxPH_8iDksHa8/view?usp=drive_link"
+        ],
+        "cloud_mirrors": {
+          "google_drive": "https://drive.google.com/file/d/1EcLm1ln28486fSbX624VxPH_8iDksHa8/view?usp=drive_link"
+        }
+      },
+      "patch": {
+        "filename": "L2SudamericaUpdater.zip",
+        "estimated_size_mb": 79,
+        "sha256": "",
+        "urls": [
+          "https://www.l2sudamerica.com/L2SudamericaUpdater.zip"
+        ],
+        "cloud_mirrors": {
+          "mega": "https://mega.nz/file/DNkyAIAC#PyXOkzjLBiideXoG5jKbiJojXQ-6wDlRCoH6UKFlWK0"
+        }
+      },
+      "shared_assets": [
+        "music"
+      ],
+      "staging_dir": "clients/l2sudamerica-lab"
     }
   }
 }
