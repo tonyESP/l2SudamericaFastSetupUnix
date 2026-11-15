@@ -22,8 +22,9 @@ print("-" * 72)
 for s_id, s in data["servers"].items():
     client_path = os.path.join(project_root, s["client_dir"])
     prefix_path = os.path.join(project_root, s["prefix_dir"])
+    exe_path = os.path.join(project_root, s["client_dir"], s.get("executable", "system/l2.exe"))
     
-    client_status = "✅ OK" if os.path.isdir(client_path) and os.listdir(client_path) else "❌ Falta"
+    client_status = "✅ OK" if os.path.isfile(exe_path) else "❌ Falta"
     prefix_status = "✅ Listo" if os.path.isdir(prefix_path) and os.path.isfile(os.path.join(prefix_path, "system.reg")) else "❌ No inic."
     rates = s["rates"].get("exp", "N/A")
     chronicle = s.get("chronicle", "N/A")
@@ -124,21 +125,27 @@ cmd_run() {
     "${WINE}" "${l2_exe}"
 }
 
+cmd_download() {
+    "${SCRIPT_DIR}/download_clients.sh" "$@"
+}
+
 usage() {
-    echo "Uso: $0 {list|doctor|setup <server_id>|run <server_id>}"
+    echo "Uso: $0 {list|doctor|download <args>|setup <server_id>|run <server_id>}"
     echo ""
     echo "Comandos:"
     echo "  list               Lista los servidores y el estado de clientes y prefijos"
     echo "  doctor             Verifica hardware, controladores y dependencias de ejecución"
+    echo "  download <args>    Gestiona la descarga y extracción de clientes (download_clients.sh)"
     echo "  setup <server_id>  Aprovisiona de forma desatendida el prefijo Wine y aplica el fine-tuning"
     echo "  run <server_id>    Lanza el juego con aceleración NVIDIA y DXVK"
     echo ""
 }
 
 case "${1:-}" in
-    list)   cmd_list ;;
-    doctor) cmd_doctor ;;
-    setup)  shift; cmd_setup "$@" ;;
-    run)    shift; cmd_run "$@" ;;
-    *)      usage ;;
+    list)     cmd_list ;;
+    doctor)   cmd_doctor ;;
+    download) shift; cmd_download "$@" ;;
+    setup)    shift; cmd_setup "$@" ;;
+    run)      shift; cmd_run "$@" ;;
+    *)        usage ;;
 esac

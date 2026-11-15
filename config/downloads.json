@@ -1,0 +1,105 @@
+{
+  "version": "1.0.0",
+  "downloads": {
+    "l2frenzy-interlude": {
+      "server_id": "l2frenzy-interlude",
+      "name": "L2 Frenzy - Mythos (Interlude x6)",
+      "chronicle": "Interlude (C6)",
+      "client": {
+        "filename": "Interlude.7z",
+        "estimated_size_mb": 2450,
+        "sha256": "",
+        "urls": [
+          "https://archive.org/download/interlude.-7z/Interlude.7z"
+        ],
+        "cloud_mirrors": {
+          "mega": "https://mega.nz/folder/l2frenzy-interlude-client",
+          "mediafire": "https://www.mediafire.com/folder/l2frenzy_c6_client"
+        }
+      },
+      "patch": {
+        "filename": "l2frenzy_interlude_patch.zip",
+        "estimated_size_mb": 120,
+        "sha256": "",
+        "urls": [
+          "https://l2frenzy.net/files/patch/L2Frenzy_Patch.zip"
+        ],
+        "cloud_mirrors": {
+          "mediafire": "https://www.mediafire.com/file/l2frenzy_patch_latest.zip",
+          "mega": "https://mega.nz/file/l2frenzy_patch_latest"
+        }
+      },
+      "shared_assets": [
+        "music"
+      ],
+      "staging_dir": "clients/l2frenzy-interlude"
+    },
+    "l2scarlet-h5": {
+      "server_id": "l2scarlet-h5",
+      "name": "L2 Scarlet - Freya/H5 (High Five x10)",
+      "chronicle": "High Five (H5)",
+      "client": {
+        "filename": "Lineage_II_HighFive.7z",
+        "estimated_size_mb": 4660,
+        "sha256": "",
+        "urls": [
+          "https://archive.org/download/lineage-ii-high-five.-7z/Lineage%20II%20-%20HighFive.7z"
+        ],
+        "cloud_mirrors": {
+          "mega": "https://mega.nz/folder/lineage2scarlet-h5-client",
+          "mediafire": "https://www.mediafire.com/folder/l2scarlet_h5"
+        }
+      },
+      "patch": {
+        "filename": "l2scarlet_h5_system_patch.zip",
+        "estimated_size_mb": 180,
+        "sha256": "",
+        "urls": [
+          "https://lineage2scarlet.com/downloads/L2Scarlet_H5_System.zip"
+        ],
+        "cloud_mirrors": {
+          "mediafire": "https://www.mediafire.com/file/l2scarlet_system_h5.zip",
+          "mega": "https://mega.nz/file/l2scarlet_system_h5"
+        }
+      },
+      "shared_assets": [
+        "music"
+      ],
+      "staging_dir": "clients/l2scarlet-h5"
+    },
+    "valhalla-essence": {
+      "server_id": "valhalla-essence",
+      "name": "Valhalla-Age - Sprint (Essence x7)",
+      "chronicle": "Essence (Moderna)",
+      "client": {
+        "filename": "Lineage_2_Classic_NA_Saviors.7z",
+        "estimated_size_mb": 9250,
+        "sha256": "0e546f637f2b0e55f77b9696fa238954b61c74953172e68886851c6192ef8f8e",
+        "urls": [
+          "https://archive.org/download/lineage-2-classic-na-saviors-2.9.5.7z/Lineage%202%20Classic%20NA%20-%20Saviors%202.9.5.7z"
+        ],
+        "cloud_mirrors": {
+          "google_drive": "https://drive.google.com/drive/folders/valhalla-age-essence",
+          "yandex_disk": "https://disk.yandex.ru/d/valhalla-essence",
+          "telegram_bot": "https://t.me/Fun_Comm_MMO_Files_bot"
+        }
+      },
+      "patch": {
+        "filename": "valhalla_launcher.exe",
+        "estimated_size_mb": 45,
+        "sha256": "",
+        "urls": [
+          "https://valhalla-essence.org/files/Launcher.exe",
+          "https://valhalla-age.org/files/Launcher.exe"
+        ],
+        "cloud_mirrors": {
+          "telegram_bot": "https://t.me/Fun_Comm_MMO_Files_bot"
+        }
+      },
+      "shared_assets": [
+        "music"
+      ],
+      "staging_dir": "clients/valhalla-essence"
+    }
+  }
+}

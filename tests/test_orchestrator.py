@@ -30,6 +30,11 @@ class TestL2CtlOrchestrator(unittest.TestCase):
         self.assertIn("l2scarlet-h5", res.stdout)
         self.assertIn("valhalla-essence", res.stdout)
 
+    def test_download_command_delegation(self):
+        res = subprocess.run([L2_CTL, "download", "list"], capture_output=True, text=True)
+        self.assertEqual(res.returncode, 0, f"Download delegation failed: {res.stderr}")
+        self.assertIn("CATÁLOGO DE ADQUISICIÓN Y STAGING DE CLIENTES L2", res.stdout)
+
     def test_invalid_command_shows_usage(self):
         res = subprocess.run([L2_CTL, "invalid_cmd"], capture_output=True, text=True)
         self.assertIn("Uso:", res.stdout)
