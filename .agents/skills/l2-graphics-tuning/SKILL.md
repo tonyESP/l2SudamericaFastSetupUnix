@@ -46,6 +46,6 @@ Para llevar el cliente más allá de WineD3D sin tocar `l2.ini` (cifrado RSA) ni
 - **Sistema y Red (`l2_ctl.sh`)**:
   - Pinning en los 8 núcleos físicos sin Hyper-Threading (`taskset` + `WINE_CPU_TOPOLOGY`), `gamemoderun`, `ram_prewarm` en Page Cache y `TCP_NODELAY` en `l2_auth_redir.so` (32 y 64 bits con `$LIB`).
 - **Post-procesado Vulkan 32-bit (`vkBasalt` en `l2sudamerica-lab`)**:
-  - `effects = deband:smaa:vibrance:curves:cas` (`Vibrance=0.18`, `Contrast=0.12`, `casSharpness=0.45`, toggle en vivo con `Home`).
+  - `effects = deband:smaa:vibrance:curves:cas` (`Vibrance=0.38`, `Contrast=0.45`, `casSharpness=0.65`, toggle en vivo con `Home`).
   - Mantener `AntiAliasing=0` y `GPUAnimation=False` en `Option.ini` (con `GPUAnimation=True` crashea en Gatekeeper/ciudad).
 
