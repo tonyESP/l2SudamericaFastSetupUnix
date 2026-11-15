@@ -1,0 +1,66 @@
+{
+  "version": "1.0.0",
+  "default_runner": "wine-ge-custom",
+  "servers": {
+    "elmorelab-erica": {
+      "id": "elmorelab-erica",
+      "name": "ElmoreLab - Erica (Interlude x3)",
+      "chronicle": "Interlude",
+      "rates": {
+        "exp": "x3",
+        "sp": "x3",
+        "adena": "x3",
+        "drop": "x3",
+        "spoil": "x3"
+      },
+      "style": "Pure Classic / Non-P2W",
+      "website": "https://elmorelab.com",
+      "anticheat": "Server-side",
+      "linux_status": "Verified / Excellent",
+      "client_dir": "clients/elmorelab_erica",
+      "prefix_dir": "prefixes/elmorelab_erica",
+      "executable": "system/l2.exe",
+      "winetricks": ["corefonts", "tahoma", "d3dx9", "vcrun2008", "msxml4"]
+    },
+    "l2frenzy-interlude": {
+      "id": "l2frenzy-interlude",
+      "name": "L2 Frenzy - Interlude Mid-Rate (x6/x10)",
+      "chronicle": "Interlude",
+      "rates": {
+        "exp": "x6 - x10",
+        "sp": "x6 - x10",
+        "adena": "x5 - x8",
+        "drop": "x5 - x8",
+        "spoil": "x5 - x8"
+      },
+      "style": "Mid-Rate Craft-PvP (Sweet Spot)",
+      "website": "https://l2frenzy.net",
+      "anticheat": "Win32 Standard (Wine Friendly)",
+      "linux_status": "Verified / Good",
+      "client_dir": "clients/l2frenzy_interlude",
+      "prefix_dir": "prefixes/l2frenzy_interlude",
+      "executable": "system/l2.exe",
+      "winetricks": ["corefonts", "tahoma", "d3dx9", "vcrun2008", "msxml4"]
+    },
+    "classic-club": {
+      "id": "classic-club",
+      "name": "L2 Classic Club (Classic 2.7 Savior)",
+      "chronicle": "Classic 2.7",
+      "rates": {
+        "exp": "x3",
+        "sp": "x3",
+        "adena": "x3",
+        "drop": "x3",
+        "spoil": "x3"
+      },
+      "style": "Modern Engine / Classic World",
+      "website": "https://l2classic.club",
+      "anticheat": "Proton-GE Compatible",
+      "linux_status": "Verified / Good",
+      "client_dir": "clients/classic_club",
+      "prefix_dir": "prefixes/classic_club",
+      "executable": "system/l2.exe",
+      "winetricks": ["corefonts", "tahoma", "d3dx9", "vcrun2015", "msxml4"]
+    }
+  }
+}

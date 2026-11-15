@@ -1,0 +1,34 @@
+# Lineage 2 Linux Engineering Project - Git Ignore
+
+# Binary clients and heavy assets
+clients/*
+!clients/.gitkeep
+
+# Isolated Wine/Proton prefixes
+prefixes/*
+!prefixes/.gitkeep
+
+# Download archives and media
+downloads/*
+!downloads/.gitkeep
+
+# Extracted Wine/Proton runners
+tools/runners/*
+!tools/runners/.gitkeep
+
+# Archive formats
+*.zip
+*.7z
+*.rar
+*.tar.gz
+*.tar.xz
+*.iso
+
+# Logs and runtime artifacts
+*.log
+*.tmp
+*.bak
+*~
+
+# Wine runtime files
+*.wineserver

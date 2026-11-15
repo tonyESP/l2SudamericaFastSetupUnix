@@ -1,0 +1,16 @@
+# DXVK Configuration Template for Lineage 2 on NVIDIA Turing (T1200)
+
+# Limit framerate to avoid unnecessary power consumption in static menus
+d3d9.maxFrameRate = 144
+
+# Force 16x Anisotropic Filtering for sharper terrain and building textures
+d3d9.samplerAnisotropy = 16
+
+# Defer surface creation to improve stability during Alt+Tab and window resize
+d3d9.deferSurfaceCreation = True
+
+# Enable asynchronous shader compilation pipeline (mitigates first-time cast stutters)
+dxvk.enableAsync = True
+
+# State cache enablement
+dxvk.numCompilerThreads = 8
