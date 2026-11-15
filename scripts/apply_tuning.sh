@@ -31,6 +31,10 @@ if [[ ! -f "${CLIENT_SYSTEM_DIR}/Option.ini" ]]; then
     log_success "Option.ini (1080p optimizado) inyectado."
 else
     log_info "Option.ini existente detectado; se mantiene para no sobrescribir keybindings."
+    if ! grep -q "UseAGP" "${CLIENT_SYSTEM_DIR}/Option.ini"; then
+        sed -i '/\[Video\]/a UseAGP=False' "${CLIENT_SYSTEM_DIR}/Option.ini"
+        log_success "Directiva UseAGP=False inyectada en Option.ini existente."
+    fi
 fi
 
 log_success "Fine-tuning completado para ${SERVER_ID}."
