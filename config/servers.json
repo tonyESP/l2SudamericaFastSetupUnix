@@ -1,66 +1,61 @@
 {
-  "version": "1.3.0",
+  "version": "1.4.0",
   "default_runner": "wine-ge-custom",
   "servers": {
-    "l2frenzy-interlude": {
-      "id": "l2frenzy-interlude",
-      "name": "L2 Frenzy - Mythos (Interlude x6)",
+    "l2sudamerica-interlude": {
+      "id": "l2sudamerica-interlude",
+      "name": "L2 Sudamerica (Interlude x10 - Safe WineD3D)",
       "chronicle": "Interlude (C6)",
-      "rates": {
-        "exp": "x6",
-        "sp": "x6",
-        "adena": "x5",
-        "drop": "x5",
-        "spoil": "x5"
-      },
-      "style": "Sabor 1: Clásico Puro (Sin atributos / 31 clases / No-wipe)",
-      "website": "https://l2frenzy.net",
-      "anticheat": "Win32 Estándar (Cero riesgo de ban en Linux)",
-      "linux_status": "Verified / Excellent",
-      "client_dir": "clients/l2frenzy-interlude",
-      "prefix_dir": "prefixes/l2frenzy-interlude",
-      "executable": "system/l2.exe",
-      "winetricks": ["corefonts", "tahoma", "d3dx9", "vcrun2008", "msxml4"]
-    },
-    "l2scarlet-h5": {
-      "id": "l2scarlet-h5",
-      "name": "L2 Scarlet - Freya/H5 (High Five x10)",
-      "chronicle": "High Five (H5)",
       "rates": {
         "exp": "x10",
         "sp": "x10",
-        "adena": "x10",
-        "drop": "x10",
-        "spoil": "x10"
+        "adena": "x7",
+        "drop": "x7",
+        "spoil": "x7"
       },
-      "style": "Sabor 2: La Cumbre Pre-GoD (Atributos / 34 clases / Instancias)",
-      "website": "https://lineage2scarlet.com",
-      "anticheat": "Linux Friendly (Soporte oficial Wine/Lutris)",
+      "style": "Hispano LATAM: Comunidad activa / PvP / Interface 3.0 (Perfil Seguro)",
+      "website": "https://l2sudamerica.com",
+      "anticheat": "Win32 Estándar (Compatible Wine)",
       "linux_status": "Verified / Excellent",
-      "client_dir": "clients/l2scarlet-h5",
-      "prefix_dir": "prefixes/l2scarlet-h5",
-      "executable": "system/l2.exe",
+      "client_dir": "clients/l2sudamerica-interlude",
+      "prefix_dir": "prefixes/l2sudamerica-interlude",
+      "executable": "system/L2.exe",
+      "runner": "wine-11.22-staging-amd64",
+      "auth_proxy": {
+        "host": "l2.lineage2sudamerica.com",
+        "port": 2106
+      },
       "winetricks": ["corefonts", "tahoma", "d3dx9", "vcrun2008", "msxml4"]
     },
-    "valhalla-essence": {
-      "id": "valhalla-essence",
-      "name": "Valhalla-Age - Sprint (Essence x7)",
-      "chronicle": "Essence (Moderna)",
+    "l2sudamerica-optimized": {
+      "id": "l2sudamerica-optimized",
+      "name": "L2 Sudamerica (Interlude x10 - Optimized)",
+      "chronicle": "Interlude (C6)",
       "rates": {
-        "exp": "x7",
-        "sp": "x7",
-        "adena": "x5",
-        "drop": "x5",
-        "spoil": "x5"
+        "exp": "x10",
+        "sp": "x10",
+        "adena": "x7",
+        "drop": "x7",
+        "spoil": "x7"
       },
-      "style": "Sabor 3: Motor Moderno (HD / Auto-farm oficial / Combate ágil)",
-      "website": "https://valhalla-essence.org",
-      "anticheat": "Wine/Proton Friendly",
-      "linux_status": "Verified / Good",
-      "client_dir": "clients/valhalla-essence",
-      "prefix_dir": "prefixes/valhalla-essence",
-      "executable": "system/l2.exe",
-      "winetricks": ["corefonts", "tahoma", "d3dx9", "vcrun2015", "msxml4"]
+      "style": "Hispano LATAM: Interface 3.0 + Vulkan/DXVK + Anisotropic 16x + MangoHud",
+      "website": "https://l2sudamerica.com",
+      "anticheat": "Win32 Estándar (Compatible Wine/DXVK)",
+      "linux_status": "Tuning / Active",
+      "client_dir": "clients/l2sudamerica-optimized",
+      "prefix_dir": "prefixes/l2sudamerica-optimized",
+      "executable": "system/L2.exe",
+      "runner": "wine-11.22-staging-amd64",
+      "dxvk": true,
+      "mangohud": true,
+      "wine_esync": true,
+      "wine_fsync": true,
+      "nvidia_af_16x": true,
+      "auth_proxy": {
+        "host": "l2.lineage2sudamerica.com",
+        "port": 2106
+      },
+      "winetricks": ["corefonts", "tahoma", "d3dx9", "vcrun2008", "msxml4"]
     }
   }
 }

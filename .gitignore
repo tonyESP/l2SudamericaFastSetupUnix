@@ -45,3 +45,14 @@ __pycache__/
 config/*.local.json
 config/credentials.json
 
+
+# Standalone cross-platform launcher repository
+l2sudamerica-launcher/
+
+# External runtime tools, caches, and compiled shims
+tools/mangohud/
+tools/vkbasalt/
+tools/dxvk_cache/
+tools/dxvk_32/
+tools/patches/
+tools/shims/*.so

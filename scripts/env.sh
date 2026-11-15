@@ -27,6 +27,9 @@ export XAUTHORITY="${XAUTHORITY:-${HOME:-/home/floky}/.Xauthority}"
 export __NV_PRIME_RENDER_OFFLOAD=1
 export __VK_LAYER_NV_optimus=NVIDIA_only
 
+# Wine DLL overrides for custom server loaders (dsetup.dll)
+export WINEDLLOVERRIDES="dsetup=n,b;${WINEDLLOVERRIDES:-}"
+
 # DXVK optimizations
 export DXVK_LOG_LEVEL=none
 export DXVK_STATE_CACHE=1

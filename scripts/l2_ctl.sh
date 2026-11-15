@@ -96,18 +96,56 @@ cmd_run() {
         exit 1
     fi
 
-    local client_system_dir="${L2_CLIENTS_DIR}/${s_id}/system"
-    local l2_exe="${client_system_dir}/l2.exe"
+    local cfg_json
+    cfg_json=$(python3 -c '
+import json, sys
+with open(sys.argv[1], "r", encoding="utf-8") as f:
+    srv = json.load(f)["servers"].get(sys.argv[2])
+if not srv:
+    sys.exit(1)
+proxy = srv.get("auth_proxy") or {}
+print(srv.get("executable", "system/l2.exe"))
+print(srv.get("runner", ""))
+print(proxy.get("host", ""))
+print(proxy.get("port", 2106))
+print("1" if srv.get("dxvk") else "0")
+print("1" if srv.get("mangohud") else "0")
+print("1" if srv.get("wine_esync") else "0")
+print("1" if srv.get("wine_fsync") else "0")
+print("1" if srv.get("nvidia_af_16x") else "0")
+' "${L2_CONFIG_DIR}/servers.json" "${s_id}") || {
+        log_error "Servidor no encontrado en servers.json: ${s_id}"
+        exit 1
+    }
+
+    local exe_rel runner_name proxy_host proxy_port opt_dxvk opt_mangohud opt_esync opt_fsync opt_af16x
+    {
+        read -r exe_rel
+        read -r runner_name
+        read -r proxy_host
+        read -r proxy_port
+        read -r opt_dxvk
+        read -r opt_mangohud
+        read -r opt_esync
+        read -r opt_fsync
+        read -r opt_af16x
+    } <<< "${cfg_json}"
+
+    local client_dir="${L2_CLIENTS_DIR}/${s_id}"
+    local client_system_dir="${client_dir}/system"
+    local l2_exe="${client_dir}/${exe_rel}"
     local prefix_path="${L2_PREFIXES_DIR}/${s_id}"
 
     if [[ ! -f "${l2_exe}" ]]; then
         log_error "No se encuentra el ejecutable: ${l2_exe}"
-        log_info "Descomprime el cliente del juego dentro de: ${L2_CLIENTS_DIR}/${s_id}/"
+        log_info "Descomprime el cliente del juego dentro de: ${client_dir}/"
         exit 1
     fi
 
     local runner_bin
-    if [[ -x "${L2_RUNNERS_DIR}/current/bin/wine" ]]; then
+    if [[ -n "${runner_name}" && -x "${L2_RUNNERS_DIR}/${runner_name}/bin/wine" ]]; then
+        runner_bin="${L2_RUNNERS_DIR}/${runner_name}/bin/wine"
+    elif [[ -x "${L2_RUNNERS_DIR}/current/bin/wine" ]]; then
         runner_bin="${L2_RUNNERS_DIR}/current/bin/wine"
     elif command -v wine >/dev/null 2>&1; then
         runner_bin=$(command -v wine)
@@ -116,13 +154,76 @@ cmd_run() {
         exit 1
     fi
 
+    _L2_AUTH_PROXY_PID=""
+    cleanup_run() {
+        if [[ -n "${_L2_AUTH_PROXY_PID:-}" ]] && kill -0 "${_L2_AUTH_PROXY_PID}" 2>/dev/null; then
+            kill "${_L2_AUTH_PROXY_PID}" 2>/dev/null || true
+            wait "${_L2_AUTH_PROXY_PID}" 2>/dev/null || true
+        fi
+    }
+    trap cleanup_run EXIT
+
+    if [[ -n "${proxy_host}" ]]; then
+        local listen_port="${L2_AUTH_PROXY_PORT:-21060}"
+        local shim_so="${L2_PROJECT_ROOT}/tools/shims/l2_auth_redir.so"
+        if [[ ! -f "${shim_so}" ]]; then
+            log_error "Falta shim de red: ${shim_so}"
+            exit 1
+        fi
+        python3 "${SCRIPT_DIR}/l2_auth_proxy.py" \
+            --listen-port "${listen_port}" \
+            --target-host "${proxy_host}" \
+            --target-port "${proxy_port}" &
+        _L2_AUTH_PROXY_PID=$!
+        export L2_AUTH_PROXY_PORT="${listen_port}"
+        export L2_AUTH_TARGET_PORT="${proxy_port}"
+        export LD_PRELOAD="${shim_so}${LD_PRELOAD:+:${LD_PRELOAD}}"
+        log_info "Auth relay activo en 127.0.0.1:${listen_port} -> ${proxy_host}:${proxy_port}"
+    fi
+
     export WINE="${runner_bin}"
     export WINEPREFIX="${prefix_path}"
     export DXVK_CONFIG_FILE="${client_system_dir}/dxvk.conf"
+    export WINEDEBUG="${WINEDEBUG:--all}"
+    export __GL_THREADED_OPTIMIZATIONS="${__GL_THREADED_OPTIMIZATIONS:-1}"
+
+    if [[ "${opt_esync}" == "1" ]]; then
+        export WINEESYNC=1
+        export STAGING_SHARED_MEMORY=1
+    fi
+    if [[ "${opt_fsync}" == "1" ]]; then
+        export WINEFSYNC=1
+    fi
+    if [[ "${opt_af16x}" == "1" ]]; then
+        export __GL_Aniso=4
+        export __GL_SHADER_DISK_CACHE=1
+        export __GL_SHADER_DISK_CACHE_PATH="${L2_TOOLS_DIR}/dxvk_cache"
+    fi
+
+    if [[ "${opt_dxvk}" == "1" && -f "${L2_TOOLS_DIR}/dxvk_32/d3d9.dll" ]]; then
+        if [[ ! -f "${client_system_dir}/d3d9.dll" ]] || ! cmp -s "${L2_TOOLS_DIR}/dxvk_32/d3d9.dll" "${client_system_dir}/d3d9.dll"; then
+            cp -f "${L2_TOOLS_DIR}/dxvk_32/d3d9.dll" "${client_system_dir}/d3d9.dll"
+        fi
+        export DXVK_STATE_CACHE_PATH="${L2_TOOLS_DIR}/dxvk_cache"
+        export WINEDLLOVERRIDES="d3d9=n,b${WINEDLLOVERRIDES:+;${WINEDLLOVERRIDES}}"
+        log_info "Backend gráfico: DXVK (Vulkan) + State Cache activo."
+    fi
+
+    local -a launch_prefix=()
+    if [[ "${opt_mangohud}" == "1" ]]; then
+        if [[ "${opt_dxvk}" == "1" ]]; then
+            export DXVK_HUD="${DXVK_HUD:-fps,frametimes,gpuload,scale=0.85,opacity=0.8}"
+            log_info "Telemetría DXVK HUD activa (fps, frametimes, gpuload)."
+        elif command -v mangohud >/dev/null 2>&1; then
+            export MANGOHUD_CONFIG="${MANGOHUD_CONFIG:-fps,frametime,frame_timing=1,cpu_stats,gpu_stats,vram,ram,font_size=18,position=top-left,toggle_hud=Shift_R+F12}"
+            launch_prefix=(mangohud --dlsym)
+            log_info "Telemetría MangoHud activa (toggle: Shift_R+F12)."
+        fi
+    fi
 
     log_info "Iniciando Lineage 2 [${s_id}] con aceleración NVIDIA Turing..."
     cd "${client_system_dir}"
-    "${WINE}" "${l2_exe}"
+    "${launch_prefix[@]}" "${WINE}" "${l2_exe}"
 }
 
 cmd_download() {
