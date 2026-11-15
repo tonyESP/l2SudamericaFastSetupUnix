@@ -35,3 +35,13 @@ tools/winetricks
 *.wineserver
 __pycache__/
 *.pyc
+
+# Local credentials and environment (STRICTLY NON-COMMITTED)
+.env
+.env.*
+!.env.example
+*.local
+*.local.json
+config/*.local.json
+config/credentials.json
+
