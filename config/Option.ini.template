@@ -1,4 +1,5 @@
 [Video]
+UseAGP=False
 StartupResolutionX=1920
 StartupResolutionY=1080
 ColorBits=32
