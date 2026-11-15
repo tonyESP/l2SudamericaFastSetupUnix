@@ -15,6 +15,7 @@ downloads/*
 # Extracted Wine/Proton runners
 tools/runners/*
 !tools/runners/.gitkeep
+tools/winetricks
 
 # Archive formats
 *.zip

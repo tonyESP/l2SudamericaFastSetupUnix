@@ -42,16 +42,42 @@ else
 fi
 
 export WINE="${RUNNER_BIN}"
+export WINESERVER="$(dirname "${RUNNER_BIN}")/wineserver"
+export PATH="$(dirname "${RUNNER_BIN}"):${PATH}"
 export WINEPREFIX="${PREFIX_PATH}"
 export WINEARCH="win32"
 
 log_info "Inicializando Wineprefix (32-bit arch)..."
 "${WINE}" wineboot --init
+"${WINESERVER}" -w
 
-log_info "Instalando dependencias esenciales desatendidas (corefonts, tahoma, d3dx9, vcrun2008, msxml4)..."
-"${WINETRICKS_BIN}" -q corefonts tahoma d3dx9 vcrun2008 msxml4 || {
+# Extract winetricks packages dynamically from config/servers.json (SOLID Open/Closed)
+TRICKS_STR=$(python3 -c "
+import json, sys
+try:
+    with open('${L2_CONFIG_DIR}/servers.json') as f:
+        data = json.load(f)
+    tricks = data.get('servers', {}).get('${SERVER_ID}', {}).get('winetricks', [])
+    print(' '.join(tricks))
+except Exception:
+    sys.exit(0)
+")
+
+TRICKS=()
+if [[ -n "${TRICKS_STR}" ]]; then
+    read -r -a TRICKS <<< "${TRICKS_STR}"
+fi
+
+if [[ ${#TRICKS[@]} -eq 0 ]]; then
+    TRICKS=(corefonts tahoma d3dx9 vcrun2008 msxml4)
+fi
+
+log_info "Instalando dependencias desatendidas: ${TRICKS[*]}..."
+"${WINETRICKS_BIN}" -q "${TRICKS[@]}" || {
     log_warn "Algunas dependencias opcionales reportaron advertencias, continuando..."
 }
+
+"${WINESERVER}" -w
 
 # Copy DXVK config template if available
 if [[ -f "${L2_CONFIG_DIR}/dxvk.conf.template" ]]; then
