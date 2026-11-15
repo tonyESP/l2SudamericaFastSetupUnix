@@ -193,6 +193,8 @@ print("1" if srv.get("vkbasalt") else "0")
     if [[ -n "${proxy_host}" ]]; then
         local listen_port="${L2_AUTH_PROXY_PORT:-21060}"
         local shim_so="${L2_PROJECT_ROOT}/tools/shims/l2_auth_redir.so"
+        local shim_32="${L2_PROJECT_ROOT}/tools/shims/lib/i386-linux-gnu/l2_auth_redir.so"
+        local shim_64="${L2_PROJECT_ROOT}/tools/shims/lib/x86_64-linux-gnu/l2_auth_redir.so"
         if [[ ! -f "${shim_so}" ]]; then
             log_error "Falta shim de red: ${shim_so}"
             exit 1
@@ -204,7 +206,11 @@ print("1" if srv.get("vkbasalt") else "0")
         _L2_AUTH_PROXY_PID=$!
         export L2_AUTH_PROXY_PORT="${listen_port}"
         export L2_AUTH_TARGET_PORT="${proxy_port}"
-        export LD_PRELOAD="${shim_so}${LD_PRELOAD:+:${LD_PRELOAD}}"
+        if [[ -f "${shim_32}" && -f "${shim_64}" ]]; then
+            export LD_PRELOAD="${L2_PROJECT_ROOT}/tools/shims/\$LIB/l2_auth_redir.so${LD_PRELOAD:+:${LD_PRELOAD}}"
+        else
+            export LD_PRELOAD="${shim_so}${LD_PRELOAD:+:${LD_PRELOAD}}"
+        fi
         log_info "Auth relay activo en 127.0.0.1:${listen_port} -> ${proxy_host}:${proxy_port}"
     fi
 

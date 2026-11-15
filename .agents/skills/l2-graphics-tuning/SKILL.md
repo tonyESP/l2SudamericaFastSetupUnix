@@ -33,3 +33,19 @@ Bajo **WineD3D** (cuando `d3d9` nativo/DXVK no es compatible con el binario del 
 ### Solución
 1. **Atajo rápido (`Fn Lock`)**: probar `Fn + Shift` o `Fn + Esc` según modelo de portátil.
 2. **Solución permanente (BIOS)**: en HP ZBook Fury G8 entrar en BIOS (`F10`) -> `Advanced` -> `Built-In Device Options` -> desactivar **`Action Keys Mode`** (`Disabled`). Con esto `F1`–`F12` funcionan directos en L2 y las teclas multimedia pasan a usar `Fn`.
+
+## 3. Perfil Avanzado DXVK + vkBasalt + MangoHud (Ban-Safe)
+
+Para llevar el cliente más allá de WineD3D sin tocar `l2.ini` (cifrado RSA) ni paquetes `.utx`:
+
+- **DXVK (`dxvk.conf`)**:
+  - `d3d9.maxFrameRate = 60` (ajustado al panel real `60.06 Hz` para evitar *thermal throttling*).
+  - `d3d9.presentInterval = 0`, `d3d9.maxFrameLatency = 1`, `dxvk.latencySleep = True`.
+  - `dxvk.allowFse = False`, `d3d9.deviceLossOnFocusLoss = False` (evita cuelgues al cambiar de ventana / Alt+Tab).
+  - `d3d9.samplerAnisotropy = 16`, `d3d9.samplerLodBias = -0.5`, `d3d9.clampNegativeLodBias = False`, `d3d9.seamlessCubes = True`.
+- **Sistema y Red (`l2_ctl.sh`)**:
+  - Pinning en los 8 núcleos físicos sin Hyper-Threading (`taskset` + `WINE_CPU_TOPOLOGY`), `gamemoderun`, `ram_prewarm` en Page Cache y `TCP_NODELAY` en `l2_auth_redir.so` (32 y 64 bits con `$LIB`).
+- **Post-procesado Vulkan 32-bit (`vkBasalt` en `l2sudamerica-lab`)**:
+  - `effects = deband:smaa:vibrance:curves:cas` (`Vibrance=0.18`, `Contrast=0.12`, `casSharpness=0.45`, toggle en vivo con `Home`).
+  - Mantener `AntiAliasing=0` y `GPUAnimation=False` en `Option.ini` (con `GPUAnimation=True` crashea en Gatekeeper/ciudad).
+
