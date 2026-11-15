@@ -19,9 +19,12 @@ if [[ -f "${L2_PROJECT_ROOT}/.env" ]]; then
     set +a
 fi
 
+# Display settings for X11 / Wayland
+export DISPLAY="${DISPLAY:-:0}"
+export XAUTHORITY="${XAUTHORITY:-${HOME:-/home/floky}/.Xauthority}"
+
 # NVIDIA Prime Render Offload for Hybrid Intel/NVIDIA laptop setup
 export __NV_PRIME_RENDER_OFFLOAD=1
-export __GLX_VENDOR_LIBRARY_NAME=nvidia
 export __VK_LAYER_NV_optimus=NVIDIA_only
 
 # DXVK optimizations
