@@ -1,66 +1,66 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "default_runner": "wine-ge-custom",
   "servers": {
-    "elmorelab-erica": {
-      "id": "elmorelab-erica",
-      "name": "ElmoreLab - Erica (Interlude x3)",
-      "chronicle": "Interlude",
-      "rates": {
-        "exp": "x3",
-        "sp": "x3",
-        "adena": "x3",
-        "drop": "x3",
-        "spoil": "x3"
-      },
-      "style": "Pure Classic / Non-P2W",
-      "website": "https://elmorelab.com",
-      "anticheat": "Server-side",
-      "linux_status": "Verified / Excellent",
-      "client_dir": "clients/elmorelab_erica",
-      "prefix_dir": "prefixes/elmorelab_erica",
-      "executable": "system/l2.exe",
-      "winetricks": ["corefonts", "tahoma", "d3dx9", "vcrun2008", "msxml4"]
-    },
     "l2frenzy-interlude": {
       "id": "l2frenzy-interlude",
-      "name": "L2 Frenzy - Interlude Mid-Rate (x6/x10)",
+      "name": "L2 Frenzy - Mythos (Interlude x6 - x10)",
       "chronicle": "Interlude",
       "rates": {
         "exp": "x6 - x10",
         "sp": "x6 - x10",
-        "adena": "x5 - x8",
-        "drop": "x5 - x8",
-        "spoil": "x5 - x8"
+        "adena": "x5",
+        "drop": "x5",
+        "spoil": "x5"
       },
-      "style": "Mid-Rate Craft-PvP (Sweet Spot)",
+      "style": "Retail-Like Mid-Rate (Sin items custom / Sin P2W)",
       "website": "https://l2frenzy.net",
       "anticheat": "Win32 Standard (Wine Friendly)",
-      "linux_status": "Verified / Good",
+      "linux_status": "Verified / Excellent",
       "client_dir": "clients/l2frenzy_interlude",
       "prefix_dir": "prefixes/l2frenzy_interlude",
       "executable": "system/l2.exe",
       "winetricks": ["corefonts", "tahoma", "d3dx9", "vcrun2008", "msxml4"]
     },
-    "classic-club": {
-      "id": "classic-club",
-      "name": "L2 Classic Club (Classic 2.7 Savior)",
-      "chronicle": "Classic 2.7",
+    "l2warland-interlude": {
+      "id": "l2warland-interlude",
+      "name": "L2 Warland - Legacy (Interlude x20 Craft-PvP)",
+      "chronicle": "Interlude",
       "rates": {
-        "exp": "x3",
-        "sp": "x3",
-        "adena": "x3",
-        "drop": "x3",
-        "spoil": "x3"
+        "exp": "x20",
+        "sp": "x20",
+        "adena": "x20",
+        "drop": "x10",
+        "spoil": "x10"
       },
-      "style": "Modern Engine / Classic World",
-      "website": "https://l2classic.club",
-      "anticheat": "Proton-GE Compatible",
-      "linux_status": "Verified / Good",
-      "client_dir": "clients/classic_club",
-      "prefix_dir": "prefixes/classic_club",
+      "style": "Fast Progression / 100% Retail Gear (No Custom Items)",
+      "website": "https://l2warland.com",
+      "anticheat": "Win32 Standard (Wine Friendly)",
+      "linux_status": "Verified / Excellent",
+      "client_dir": "clients/l2warland_interlude",
+      "prefix_dir": "prefixes/l2warland_interlude",
       "executable": "system/l2.exe",
-      "winetricks": ["corefonts", "tahoma", "d3dx9", "vcrun2015", "msxml4"]
+      "winetricks": ["corefonts", "tahoma", "d3dx9", "vcrun2008", "msxml4"]
+    },
+    "l2scarlet-h5": {
+      "id": "l2scarlet-h5",
+      "name": "L2 Scarlet - Freya/H5 (High Five x15)",
+      "chronicle": "High Five",
+      "rates": {
+        "exp": "x15",
+        "sp": "x15",
+        "adena": "x10",
+        "drop": "x10",
+        "spoil": "x10"
+      },
+      "style": "Retail Modern Chronicle / Official Linux Support",
+      "website": "https://lineage2scarlet.com",
+      "anticheat": "Wine/Lutris Friendly",
+      "linux_status": "Verified / Excellent",
+      "client_dir": "clients/l2scarlet_h5",
+      "prefix_dir": "prefixes/l2scarlet_h5",
+      "executable": "system/l2.exe",
+      "winetricks": ["corefonts", "tahoma", "d3dx9", "vcrun2008", "msxml4"]
     }
   }
 }

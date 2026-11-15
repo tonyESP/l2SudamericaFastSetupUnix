@@ -1,75 +1,46 @@
 # Estudio de Ingeniería: Rates y Matriz de Servidores de Lineage 2
 
-Este documento analiza con criterio cuantitativo y cualitativo el impacto de los **rates**, la elección de la **crónica**, la viabilidad técnica en **Linux** (filtro de anticheat) y los candidatos recomendados para testeo.
+Este documento analiza con criterio cuantitativo y cualitativo el impacto de los **rates**, la preservación de mecánicas **100% retail** (sin alteraciones "ilegales" ni items custom), la viabilidad técnica en **Linux** (filtro de anticheat) y los 3 candidatos seleccionados para el banco de pruebas.
 
 ---
 
-## 1. El Dilema de los Rates: ¿Dónde está el "Punto Dulce"?
+## 1. El Análisis de Velocidad: Por qué x3 es "Muerte a Pellizcos"
 
-El multiplicador de rates define la economía, el tiempo de inversión y la dinámica social del juego:
+En un rate x3, alcanzar nivel 76 (tercera profesión) y equipar Grado A o S exige entre 200 y 400 horas de farmeo repetitivo matando los mismos mobs, dependiendo de constantes parties o múltiples ventanas de buffers.
 
-| Rango de Rates | Perfil de Juego | Progresión al Endgame | Economía y Crafteo | Viabilidad Solo / Dúo | Vida Media del Servidor |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **Low-Rate (x1 - x3)** *(Hardcore)* | Purista / Nostálgico | 6 a 12 meses de grind diario | Crítica: cada adena, receta y pieza cuenta | Muy baja: requiere CP (Constant Party) de 9 personas y buffers dedicados | Muy alta (años sin wipes) |
-| **Mid-Rate (x6 - x10)** *(Punto Dulce)* | Competitivo / Adulto con tiempo limitado | 3 a 6 semanas para grado A/S | Activa: crafteo y spoil tienen valor real sin ser un trabajo a tiempo completo | **Alta**: viable con dualbox o clan pequeño | Media-Alta (temporadas largas o resets cíclicos) |
-| **Craft-PvP (x15 - x30)** | Dinámico / Acción rápida | 1 a 2 semanas | Moderada: NPC buffers suelen reemplazar a soportes; foco en materiales de enchant | Muy alta: no dependes de party fija | Media (3 a 6 meses por ciclo) |
-| **High-Rate (x50 - x1000)** | Full PvP / Instantáneo | Días u horas | Nula: GM Shop vende todo por adena o medallas | Total | Baja (wipes frecuentes) |
-
-### Conclusión sobre Rates
-Para un jugador que busca **disfrutar de la progresión, el crafteo y el mercado sin hipotecar su vida**, el rango **x6 - x10** representa el balance óptimo:
-- Elimina el sufrimiento de farmear 40 horas para una pieza Grado C/B.
-- Mantiene la emoción de dropear un arma, encantarla y disputar bosses.
-- Permite competir en asedios y Olimpiadas en un plazo razonable.
+Para un jugador que busca **velocidad y dinamismo pero manteniendo la progresión real**:
+- **x6 a x10**: Acelera el progreso un 300% respecto a x3. Cada tarde de juego desbloquea nuevas zonas y habilidades.
+- **x15 a x20**: Acelera un 500-700%. Permite alcanzar el endgame (Grado S, asedios, Olympiad y Raid Bosses) en cuestión de días o un par de semanas, sin perder el valor del crafteo y el comercio.
 
 ---
 
-## 2. El Filtro Crítico de Linux: Arquitectura Anti-Cheat
+## 2. El Criterio de "Legalidad" (100% Retail-Like)
 
-En Linux, la compatibilidad no depende de la potencia gráfica, sino de cómo el servidor valida la integridad del cliente:
-
-```
-[ Cliente L2 (DirectX 9 / UE 2.5) ]
-                │
-         (Llamadas Win32)
-                │
-                ▼
-        [ Capa Wine / Proton ] ──► [ DXVK (Vulkan 1.3) ] ──► [ GPU NVIDIA T1200 ]
-                │
-        ¿Hay Anti-Cheat?
-        ├── SI (SmartGuard / Strix / AAC a nivel Kernel) ──► ❌ CRASH / BAN (No emulable en Wine)
-        └── NO / Server-Side (Validación en backend)      ──► ✅ 100% FUNCIONAL Y FLUIDO
-```
+Uno de los mayores peligros de los servidores de rates altos son los adefesios "custom" que desbalancean el juego:
+- ❌ **Lo que descartamos categóricamente**: Alas con stats absurdos, armas custom que brillan como árboles de navidad, tatuajes con +1000% de ataque, o tiendas donde se compra equipo Grado S con dinero real.
+- ✅ **Lo que seleccionamos**: Clientes y servidores **100% fieles a las mecánicas oficiales de NCSoft**. Mismas tablas de habilidades, mismas fórmulas de daño, mismos conjuntos de armadura originales (Draconic, Imperial Crusader, Major Arcana) y economía impulsada por los jugadores.
 
 ---
 
-## 3. Matriz de Candidatos para el Banco de Pruebas
+## 3. Los 3 Candidatos Seleccionados para el Banco de Pruebas
 
-Para que puedas comparar y juzgar de primera mano, establecemos 4 candidatos clave:
+### 🏎️ Opción 1: L2 Frenzy - Mythos (Interlude x6 - x10)
+* **Crónica**: Interlude (Unreal Engine 2.5).
+* **Rates**: Exp/SP **x6** (ampliable a x8-x10 con bonos de vitalidad), Adena/Spoil **x5**.
+* **Filosofía**: Progresión ágil pero pausada. Cero items custom, cero P2W. Safe enchant +3, Max +18.
+* **Por qué probarlo**: Es el escalón intermedio perfecto: no es el dolor agónico de un x3, pero te hace disfrutar de cada grado (D, C, B, A, S).
+* **Compatibilidad Linux**: Total sobre Wine/Proton.
 
-### Candidato 1: ElmoreLab - Erica (Interlude x3)
-- **Crónica**: Interlude (Unreal Engine 2.5 puro).
-- **Rates**: Exp/Sp x3, Adena x3, Drop/Spoil x3.
-- **Anti-Cheat**: 100% Server-Side. **Compatibilidad Linux: 10/10**.
-- **Ventajas**: Máxima estabilidad, economía blindada contra P2W, progresión pausada por fases.
-- **Desventaja**: El ritmo x3 requiere paciencia.
+### 🚀 Opción 2: L2 Warland - Legacy (Interlude x20 Craft-PvP)
+* **Crónica**: Interlude clásico.
+* **Rates**: Exp/SP/Adena **x20**, Drop/Spoil **x10**.
+* **Filosofía**: Velocidad pura con equipo 100% oficial. No hay donaciones de equipo. Incluye buffer de 2 horas (para que no tengas que loguear 4 cuentas de buffers) y shots No-Grade accesibles. Safe enchant +3, Max +16.
+* **Por qué probarlo**: En 1 o 2 semanas estás listo para disputar castillos y bosses épicos sin haberte quemado en el camino.
+* **Compatibilidad Linux**: Total.
 
-### Candidato 2: L2 Frenzy / Oryn / Mythos (Interlude x6 - x10)
-- **Crónica**: Interlude.
-- **Rates**: x6 - x10 (Mid-Rate / Craft-PvP).
-- **Anti-Cheat**: Protección Win32 estándar (Wine friendly). **Compatibilidad Linux: 9/10**.
-- **Ventajas**: Ritmo perfecto para jugar en solitario o dúo, buffers de apoyo, teleports accesibles.
-- **Desventaja**: Duración estacional de los ciclos.
-
-### Candidato 3: L2 Classic Club (Classic 2.7 Savior)
-- **Crónica**: Classic (Motor moderno de L2 con mapa y mecánicas tradicionales).
-- **Rates**: x3 (progresión acelerada en early game mediante quests).
-- **Anti-Cheat**: Launcher compatible mediante Proton-GE. **Compatibilidad Linux: 8/10**.
-- **Ventajas**: Interfaz moderna, gráficos mejorados, balance de clases renovado.
-- **Desventaja**: Curva de aprendizaje respecto a Interlude clásico.
-
-### Candidato 4: L2 Scarlet / Freya-H5 (High Five x15)
-- **Crónica**: High Five (Part 5).
-- **Rates**: x15 (Mid-Rate).
-- **Anti-Cheat**: Sin SmartGuard. **Compatibilidad Linux: 8/10**.
-- **Ventajas**: Permite explorar el "pico" de habilidades, atributos e instancias de H5.
-- **Desventaja**: Menos población que los reinos de Interlude masivos.
+### 🔮 Opción 3: L2 Scarlet - Freya / H5 (High Five x15)
+* **Crónica**: High Five (Part 5) / Freya.
+* **Rates**: Exp/SP **x15**, Drop/Spoil **x10**, Adena **x10**.
+* **Filosofía**: La mejor crónica moderna de L2 con soporte explícito para Linux. Todas las 34 clases oficiales, sistema de atributos elementales, instancias de Freya, Frintezza y Zaken sin modificaciones raras.
+* **Por qué probarlo**: Para comprobar la diferencia con Interlude: interfaz moderna, habilidades más dinámicas y ritmo rápido.
+* **Compatibilidad Linux**: **Oficial y documentada** con scripts comunitarios de Lutris.
