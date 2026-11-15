@@ -1,11 +1,11 @@
 {
-  "version": "1.2.0",
+  "version": "1.3.0",
   "default_runner": "wine-ge-custom",
   "servers": {
     "l2frenzy-interlude": {
       "id": "l2frenzy-interlude",
       "name": "L2 Frenzy - Mythos (Interlude x6)",
-      "chronicle": "Interlude",
+      "chronicle": "Interlude (C6)",
       "rates": {
         "exp": "x6",
         "sp": "x6",
@@ -13,39 +13,19 @@
         "drop": "x5",
         "spoil": "x5"
       },
-      "style": "Interlude Clásico / Canela en Rama (Sin wipes / 100% seguro)",
+      "style": "Sabor 1: Clásico Puro (Sin atributos / 31 clases / No-wipe)",
       "website": "https://l2frenzy.net",
       "anticheat": "Win32 Estándar (Cero riesgo de ban en Linux)",
       "linux_status": "Verified / Excellent",
-      "client_dir": "clients/l2frenzy_interlude",
-      "prefix_dir": "prefixes/l2frenzy_interlude",
-      "executable": "system/l2.exe",
-      "winetricks": ["corefonts", "tahoma", "d3dx9", "vcrun2008", "msxml4"]
-    },
-    "l2warland-origin": {
-      "id": "l2warland-origin",
-      "name": "L2 Warland - Origin (Interlude x12)",
-      "chronicle": "Interlude",
-      "rates": {
-        "exp": "x12",
-        "sp": "x12",
-        "adena": "x4",
-        "drop": "x6",
-        "spoil": "x6"
-      },
-      "style": "Interlude Rápido y Permanente (2h Buffers / Sin wipes)",
-      "website": "https://l2warland.com",
-      "anticheat": "Win32 Estándar (Cero riesgo de ban en Linux)",
-      "linux_status": "Verified / Excellent",
-      "client_dir": "clients/l2warland_origin",
-      "prefix_dir": "prefixes/l2warland_origin",
+      "client_dir": "clients/l2frenzy-interlude",
+      "prefix_dir": "prefixes/l2frenzy-interlude",
       "executable": "system/l2.exe",
       "winetricks": ["corefonts", "tahoma", "d3dx9", "vcrun2008", "msxml4"]
     },
     "l2scarlet-h5": {
       "id": "l2scarlet-h5",
       "name": "L2 Scarlet - Freya/H5 (High Five x10)",
-      "chronicle": "High Five",
+      "chronicle": "High Five (H5)",
       "rates": {
         "exp": "x10",
         "sp": "x10",
@@ -53,14 +33,34 @@
         "drop": "x10",
         "spoil": "x10"
       },
-      "style": "Crónica Superior Equilibrada (Soporte oficial Linux)",
+      "style": "Sabor 2: La Cumbre Pre-GoD (Atributos / 34 clases / Instancias)",
       "website": "https://lineage2scarlet.com",
-      "anticheat": "Linux Friendly (Sin SmartGuard / Soporte Lutris)",
+      "anticheat": "Linux Friendly (Soporte oficial Wine/Lutris)",
       "linux_status": "Verified / Excellent",
-      "client_dir": "clients/l2scarlet_h5",
-      "prefix_dir": "prefixes/l2scarlet_h5",
+      "client_dir": "clients/l2scarlet-h5",
+      "prefix_dir": "prefixes/l2scarlet-h5",
       "executable": "system/l2.exe",
       "winetricks": ["corefonts", "tahoma", "d3dx9", "vcrun2008", "msxml4"]
+    },
+    "valhalla-essence": {
+      "id": "valhalla-essence",
+      "name": "Valhalla-Age - Sprint (Essence x7)",
+      "chronicle": "Essence (Moderna)",
+      "rates": {
+        "exp": "x7",
+        "sp": "x7",
+        "adena": "x5",
+        "drop": "x5",
+        "spoil": "x5"
+      },
+      "style": "Sabor 3: Motor Moderno (HD / Auto-farm oficial / Combate ágil)",
+      "website": "https://valhalla-essence.org",
+      "anticheat": "Wine/Proton Friendly",
+      "linux_status": "Verified / Good",
+      "client_dir": "clients/valhalla-essence",
+      "prefix_dir": "prefixes/valhalla-essence",
+      "executable": "system/l2.exe",
+      "winetricks": ["corefonts", "tahoma", "d3dx9", "vcrun2015", "msxml4"]
     }
   }
 }

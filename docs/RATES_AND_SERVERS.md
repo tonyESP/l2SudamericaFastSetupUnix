@@ -1,46 +1,43 @@
-# Estudio de Ingeniería: Rates y Matriz de Servidores de Lineage 2
+# Estudio de Ingeniería: Los 3 Sabores Distintos de Lineage 2 (Rates x6 - x12)
 
-Este documento analiza con criterio cuantitativo y cualitativo el impacto de los **rates**, la preservación de mecánicas **100% retail** (sin alteraciones "ilegales" ni items custom), la viabilidad técnica en **Linux** (filtro de anticheat) y los 3 candidatos seleccionados para el banco de pruebas.
-
----
-
-## 1. El Análisis de Velocidad: Por qué x3 es "Muerte a Pellizcos"
-
-En un rate x3, alcanzar nivel 76 (tercera profesión) y equipar Grado A o S exige entre 200 y 400 horas de farmeo repetitivo matando los mismos mobs, dependiendo de constantes parties o múltiples ventanas de buffers.
-
-Para un jugador que busca **velocidad y dinamismo pero manteniendo la progresión real**:
-- **x6 a x10**: Acelera el progreso un 300% respecto a x3. Cada tarde de juego desbloquea nuevas zonas y habilidades.
-- **x15 a x20**: Acelera un 500-700%. Permite alcanzar el endgame (Grado S, asedios, Olympiad y Raid Bosses) en cuestión de días o un par de semanas, sin perder el valor del crafteo y el comercio.
+Este documento define los 3 sabores cronológicos seleccionados para el banco de pruebas, cubriendo las tres grandes eras de la historia de Lineage 2, todos dentro del rango óptimo de rates (**x6 a x12**) y con compatibilidad y seguridad garantizada en Linux.
 
 ---
 
-## 2. El Criterio de "Legalidad" (100% Retail-Like)
+## 1. Matriz de los 3 Sabores Cronológicos
 
-Uno de los mayores peligros de los servidores de rates altos son los adefesios "custom" que desbalancean el juego:
-- ❌ **Lo que descartamos categóricamente**: Alas con stats absurdos, armas custom que brillan como árboles de navidad, tatuajes con +1000% de ataque, o tiendas donde se compra equipo Grado S con dinero real.
-- ✅ **Lo que seleccionamos**: Clientes y servidores **100% fieles a las mecánicas oficiales de NCSoft**. Mismas tablas de habilidades, mismas fórmulas de daño, mismos conjuntos de armadura originales (Draconic, Imperial Crusader, Major Arcana) y economía impulsada por los jugadores.
+```
+                               LAS 3 ERAS DE LINEAGE 2
+                                         │
+         ┌───────────────────────────────┼───────────────────────────────┐
+         ▼                               ▼                               ▼
+     [SABOR 1]                       [SABOR 2]                       [SABOR 3]
+  ERA DORADA CLÁSICA             EXPANSIÓN CUMBRE                 ERA MODERNA
+   Interlude (C6)                 High Five (H5)                  Essence / Classic
+   • Rates: x6                     • Rates: x10                    • Rates: x7
+   • 31 clases puras               • 34 clases + Atributos         • Interfaz HD + Auto-farm
+   • Sin elementos / S-Grade       • Instancias Freya/Zaken        • Combate ágil y dinámico
+```
 
 ---
 
-## 3. Los 3 Candidatos Seleccionados para el Banco de Pruebas
+## 2. Detalle de los Candidatos Seleccionados
 
-### 🏎️ Opción 1: L2 Frenzy - Mythos (Interlude x6 - x10)
-* **Crónica**: Interlude (Unreal Engine 2.5).
-* **Rates**: Exp/SP **x6** (ampliable a x8-x10 con bonos de vitalidad), Adena/Spoil **x5**.
-* **Filosofía**: Progresión ágil pero pausada. Cero items custom, cero P2W. Safe enchant +3, Max +18.
-* **Por qué probarlo**: Es el escalón intermedio perfecto: no es el dolor agónico de un x3, pero te hace disfrutar de cada grado (D, C, B, A, S).
-* **Compatibilidad Linux**: Total sobre Wine/Proton.
+### 🏛️ Sabor 1: Interlude Clásico — L2 Frenzy (Mythos x6)
+* **Crónica**: Interlude (C6 / 2006).
+* **Rates**: **x6 base** (canela en rama).
+* **Por qué es único**: Es la experiencia que enamoró a todos. Sin atributos elementales, sin razas añadidas, 31 clases tradicionales, asedios épicos y PvP en mundo abierto sin mazmorras instanciadas cerradas.
+* **Comunidad**: Estable, permanente y sin wipes periódicos destructivos.
+* **Estado en Linux**: **Prefijo aprovisionado y listo (`prefixes/l2frenzy-interlude`)**.
 
-### 🚀 Opción 2: L2 Warland - Legacy (Interlude x20 Craft-PvP)
-* **Crónica**: Interlude clásico.
-* **Rates**: Exp/SP/Adena **x20**, Drop/Spoil **x10**.
-* **Filosofía**: Velocidad pura con equipo 100% oficial. No hay donaciones de equipo. Incluye buffer de 2 horas (para que no tengas que loguear 4 cuentas de buffers) y shots No-Grade accesibles. Safe enchant +3, Max +16.
-* **Por qué probarlo**: En 1 o 2 semanas estás listo para disputar castillos y bosses épicos sin haberte quemado en el camino.
-* **Compatibilidad Linux**: Total.
+### ⚔️ Sabor 2: La Cumbre Pre-GoD — L2 Scarlet (Freya / H5 x10)
+* **Crónica**: High Five / Freya (2010).
+* **Rates**: **x10 redondo** en todo (Exp, SP, Adena, Spoil).
+* **Por qué es único**: Considerada por los analistas como la versión más equilibrada y rica en contenido. Introduce la raza Kamael, el sistema de atributos elementales en armas/armaduras (Fuego, Agua, Tierra, Viento, Sagrado, Oscuro), equipo Grado S80 y S84 (Dynasty, Vesper, Vorpal, Elegia) y grandes mazmorras de raid (Freya, Frintezza, Zaken).
+* **Comunidad**: Internacional masiva y con **soporte documentado oficial para Wine/Lutris**.
 
-### 🔮 Opción 3: L2 Scarlet - Freya / H5 (High Five x15)
-* **Crónica**: High Five (Part 5) / Freya.
-* **Rates**: Exp/SP **x15**, Drop/Spoil **x10**, Adena **x10**.
-* **Filosofía**: La mejor crónica moderna de L2 con soporte explícito para Linux. Todas las 34 clases oficiales, sistema de atributos elementales, instancias de Freya, Frintezza y Zaken sin modificaciones raras.
-* **Por qué probarlo**: Para comprobar la diferencia con Interlude: interfaz moderna, habilidades más dinámicas y ritmo rápido.
-* **Compatibilidad Linux**: **Oficial y documentada** con scripts comunitarios de Lutris.
+### ⚡ Sabor 3: El Motor Remasterizado — Valhalla-Age (Essence x7)
+* **Crónica**: Essence (Modern Engine / 2024-2026).
+* **Rates**: **x7**.
+* **Por qué es único**: Si quieres ver cómo se juega Lineage 2 hoy en día: motor Unreal Engine adaptado a resoluciones panorámicas 1080p/1440p/4K, interfaz moderna, todas las clases rebalanceadas para ser autosuficientes (no necesitas buffers esclavos) y **sistema oficial de auto-farm integrado** en el cliente (puedes dejar al personaje farmeando automáticamente mientras trabajas o descansas).
+* **Comunidad**: Masiva (miles de jugadores activos en PvP diario).
