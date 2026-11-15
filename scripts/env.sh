@@ -11,6 +11,14 @@ export L2_RUNNERS_DIR="${L2_TOOLS_DIR}/runners"
 export L2_DOWNLOADS_DIR="${L2_PROJECT_ROOT}/downloads"
 export L2_CONFIG_DIR="${L2_PROJECT_ROOT}/config"
 
+# Load local non-committed credentials if present
+if [[ -f "${L2_PROJECT_ROOT}/.env" ]]; then
+    set -a
+    # shellcheck disable=SC1090
+    source "${L2_PROJECT_ROOT}/.env"
+    set +a
+fi
+
 # NVIDIA Prime Render Offload for Hybrid Intel/NVIDIA laptop setup
 export __NV_PRIME_RENDER_OFFLOAD=1
 export __GLX_VENDOR_LIBRARY_NAME=nvidia
