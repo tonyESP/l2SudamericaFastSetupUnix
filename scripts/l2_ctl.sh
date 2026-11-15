@@ -117,12 +117,13 @@ print("1" if srv.get("gamemode") else "0")
 print("1" if srv.get("cpu_pinning") else "0")
 print("1" if srv.get("tcp_nodelay") else "0")
 print("1" if srv.get("ram_prewarm") else "0")
+print("1" if srv.get("vkbasalt") else "0")
 ' "${L2_CONFIG_DIR}/servers.json" "${s_id}") || {
         log_error "Servidor no encontrado en servers.json: ${s_id}"
         exit 1
     }
 
-    local exe_rel runner_name proxy_host proxy_port opt_dxvk opt_mangohud opt_esync opt_fsync opt_af16x opt_gamemode opt_cpu_pinning opt_tcp_nodelay opt_ram_prewarm
+    local exe_rel runner_name proxy_host proxy_port opt_dxvk opt_mangohud opt_esync opt_fsync opt_af16x opt_gamemode opt_cpu_pinning opt_tcp_nodelay opt_ram_prewarm opt_vkbasalt
     {
         read -r exe_rel
         read -r runner_name
@@ -137,6 +138,7 @@ print("1" if srv.get("ram_prewarm") else "0")
         read -r opt_cpu_pinning
         read -r opt_tcp_nodelay
         read -r opt_ram_prewarm
+        read -r opt_vkbasalt
     } <<< "${cfg_json}"
 
     local client_dir="${L2_CLIENTS_DIR}/${s_id}"
@@ -259,6 +261,14 @@ print("1" if srv.get("ram_prewarm") else "0")
     if [[ "${opt_gamemode}" == "1" ]] && command -v gamemoderun >/dev/null 2>&1; then
         launch_prefix+=(gamemoderun)
         log_info "GameMode activo (CPU performance + GPU high-perf)."
+    fi
+
+    if [[ "${opt_vkbasalt}" == "1" && -f "${L2_TOOLS_DIR}/vkbasalt/install/lib32/libvkbasalt.so" ]]; then
+        export ENABLE_VKBASALT=1
+        export VKBASALT_CONFIG_FILE="${L2_TOOLS_DIR}/vkbasalt/vkBasalt.conf"
+        export VK_ADD_LAYER_PATH="${L2_TOOLS_DIR}/vkbasalt/layer.d${VK_ADD_LAYER_PATH:+:${VK_ADD_LAYER_PATH}}"
+        export VK_INSTANCE_LAYERS="VK_LAYER_VKBASALT_post_processing${VK_INSTANCE_LAYERS:+:${VK_INSTANCE_LAYERS}}"
+        log_info "vkBasalt 32-bit activo (CAS + SMAA, toggle: Home)."
     fi
 
     if [[ "${opt_mangohud}" == "1" ]]; then

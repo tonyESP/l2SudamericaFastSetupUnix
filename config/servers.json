@@ -82,6 +82,7 @@
       "runner": "wine-11.22-staging-amd64",
       "dxvk": true,
       "mangohud": true,
+      "vkbasalt": true,
       "gamemode": true,
       "cpu_pinning": true,
       "tcp_nodelay": true,
