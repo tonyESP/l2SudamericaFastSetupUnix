@@ -32,3 +32,5 @@ tools/runners/*
 
 # Wine runtime files
 *.wineserver
+__pycache__/
+*.pyc
