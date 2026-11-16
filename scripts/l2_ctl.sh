@@ -281,13 +281,13 @@ print("1" if srv.get("vkbasalt") else "0")
         if [[ "${opt_dxvk}" == "1" && -d "${L2_TOOLS_DIR}/mangohud/layer.d" ]]; then
             export VK_ADD_LAYER_PATH="${L2_TOOLS_DIR}/mangohud/layer.d${VK_ADD_LAYER_PATH:+:${VK_ADD_LAYER_PATH}}"
             export MANGOHUD=1
-            export MANGOHUD_CONFIG="${MANGOHUD_CONFIG:-position=top-right,fps,frametime,frame_timing=1,cpu_stats,gpu_stats,font_size=18,background_alpha=0.45,toggle_hud=Shift_R+F12}"
+            export MANGOHUD_CONFIG="${MANGOHUD_CONFIG:-position=top-right,fps,fps_metrics=avg,0.01,frametime,frame_timing=1,cpu_stats,gpu_stats,font_size=18,background_alpha=0.45,toggle_hud=Shift_R+F12}"
             log_info "Telemetría MangoHud 32-bit activa (top-right, toggle: Shift_R+F12)."
         elif [[ "${opt_dxvk}" == "1" ]]; then
             export DXVK_HUD="${DXVK_HUD:-fps,frametimes,gpuload,scale=0.85,opacity=0.8}"
             log_info "Telemetría DXVK HUD activa (fps, frametimes, gpuload)."
         elif command -v mangohud >/dev/null 2>&1; then
-            export MANGOHUD_CONFIG="${MANGOHUD_CONFIG:-position=top-right,fps,frametime,frame_timing=1,cpu_stats,gpu_stats,font_size=18,background_alpha=0.45,toggle_hud=Shift_R+F12}"
+            export MANGOHUD_CONFIG="${MANGOHUD_CONFIG:-position=top-right,fps,fps_metrics=avg,0.01,frametime,frame_timing=1,cpu_stats,gpu_stats,font_size=18,background_alpha=0.45,toggle_hud=Shift_R+F12}"
             launch_prefix+=(mangohud --dlsym)
             log_info "Telemetría MangoHud activa (toggle: Shift_R+F12)."
         fi
