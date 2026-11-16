@@ -42,12 +42,12 @@ Para llevar el cliente más allá de WineD3D sin tocar `l2.ini` (cifrado RSA) ni
   - `d3d9.maxFrameRate = 60` (ajustado al panel real `60.06 Hz` para evitar *thermal throttling*).
   - `d3d9.presentInterval = 0`, `d3d9.maxFrameLatency = 1`, `dxvk.latencySleep = True`.
   - `dxvk.allowFse = False`, `d3d9.deviceLossOnFocusLoss = False` (evita cuelgues al cambiar de ventana / Alt+Tab).
-  - `d3d9.samplerAnisotropy = 16`, `d3d9.samplerLodBias = -0.5`, `d3d9.clampNegativeLodBias = False`, `d3d9.seamlessCubes = True`.
+  - `d3d9.samplerAnisotropy = 16`, `d3d9.samplerLodBias = -0.25`, `d3d9.clampNegativeLodBias = False`, `d3d9.seamlessCubes = True`, `dxvk.numCompilerThreads = 4` (evita *shimmer*/trama en DXT de 2006 y contención de hilos en dual-box).
 - **Sistema y Red (`l2_ctl.sh`)**:
-  - Pinning en los 8 núcleos físicos sin Hyper-Threading (`taskset` + `WINE_CPU_TOPOLOGY`), `gamemoderun`, `ram_prewarm` en Page Cache y `TCP_NODELAY` en `l2_auth_redir.so` (32 y 64 bits con `$LIB`).
+  - Pinning Dual-Box automático (`taskset` + `WINE_CPU_TOPOLOGY`): 1.ª instancia en hilos primarios (`0..7`), 2.ª instancia en hilos SMT (`8..15`), puerto del auth relay auto-incrementado (`21060`, `21061`, ...), omisión de `ram_prewarm` redundante si ya hay `L2.exe` activo, `gamemoderun`, `TCP_NODELAY` en `l2_auth_redir.so` (32 y 64 bits con `$LIB`) y `MangoHud` con `fps_metrics=0.01`.
 - **Post-procesado Vulkan 32-bit (`vkBasalt` en `l2sudamerica-lab`)**:
   - **Perfil anterior (backup `vkBasalt.conf.bak-remaster`)**: `effects = deband:smaa:vibrance:curves:cas` (`Vibrance=0.38`, `Contrast=0.45`, `casSharpness=0.65`).
-  - **Perfil Remaster Extreme actual (graduado a `l2sudamerica-optimized` y activo en `l2sudamerica-lab`)**: `effects = smaa:tonemap:vibrance:curves:cas:deband` (`deband` al final para que `cas` no afile el dithering; `Tonemap` `Gamma=0.88`/`Exposure=0.08`/`Saturation=0.08`/`Defog=0.0`, `Vibrance=0.34`, `Contrast=0.32`, `casSharpness=0.45`, toggle en vivo con `Home`).
-  - **Motor UE2.5 (`clients/l2sudamerica-lab/system/Option.ini`, backup `Option.ini.bak-remaster`)**: `PostProc=1`, `L2WaterEffect.EffectType=2`, `[ClippingRange]` ampliado (`Terrain=10`, `Actor=8`, `StaticMesh=8`, `StaticMeshLod=8`, `Pawn=6`).
+  - **Perfil Remaster Extreme actual (graduado a `l2sudamerica-optimized` y activo en `l2sudamerica-lab`)**: `effects = smaa:tonemap:vibrance:curves:cas` (sin `deband` para no suavizar el micro-detalle de `cas`; `Tonemap` `Gamma=0.96`/`Exposure=0.04`/`Saturation=0.08`/`Defog=0.0` emparejado con `Gamma=1.000000` neutro en `Option.ini`, `Vibrance=0.34`, `Contrast=0.32`, `casSharpness=0.45`, toggle en vivo con `Home`).
+  - **Motor UE2.5 (`clients/l2sudamerica-lab/system/Option.ini`, backup `Option.ini.bak-remaster`)**: `Gamma=1.000000`, `PostProc=1`, `L2WaterEffect.EffectType=2`, `[ClippingRange]` ampliado (`Terrain=10`, `Actor=8`, `StaticMesh=8`, `StaticMeshLod=8`, `Pawn=6`).
   - Mantener `AntiAliasing=0` y `GPUAnimation=False` en `Option.ini` (con `GPUAnimation=True` crashea en Gatekeeper/ciudad; `AntiAliasing>0` puede bloquear `depthCapture` en Vulkan/DXVK).
 

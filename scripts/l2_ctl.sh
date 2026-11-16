@@ -176,22 +176,36 @@ print("1" if srv.get("vkbasalt") else "0")
     }
     trap cleanup_run EXIT
 
+    local has_active_l2=0
+    if command -v pgrep >/dev/null 2>&1 && pgrep -fi '[/\\]L2\.exe([[:space:]]|$)' >/dev/null 2>&1; then
+        has_active_l2=1
+    fi
+
     if [[ "${opt_ram_prewarm}" == "1" ]]; then
-        (
-            for d in animations systextures textures staticmeshes maps; do
-                if [[ -d "${client_dir}/${d}" ]]; then
-                    find "${client_dir}/${d}" -type f -exec cat {} + > /dev/null 2>&1 || true
-                fi
-            done
-        ) &
-        _L2_PREWARM_PID=$!
-        renice -n 19 -p "${_L2_PREWARM_PID}" >/dev/null 2>&1 || true
-        ionice -c 3 -p "${_L2_PREWARM_PID}" >/dev/null 2>&1 || true
-        log_info "RAM Page-Cache Pre-Warm activo en segundo plano."
+        if [[ "${has_active_l2}" == "1" ]]; then
+            log_info "RAM Page-Cache ya caliente por instancia activa."
+        else
+            (
+                for d in animations systextures textures staticmeshes maps; do
+                    if [[ -d "${client_dir}/${d}" ]]; then
+                        find "${client_dir}/${d}" -type f -exec cat {} + > /dev/null 2>&1 || true
+                    fi
+                done
+            ) &
+            _L2_PREWARM_PID=$!
+            renice -n 19 -p "${_L2_PREWARM_PID}" >/dev/null 2>&1 || true
+            ionice -c 3 -p "${_L2_PREWARM_PID}" >/dev/null 2>&1 || true
+            log_info "RAM Page-Cache Pre-Warm activo en segundo plano."
+        fi
     fi
 
     if [[ -n "${proxy_host}" ]]; then
         local listen_port="${L2_AUTH_PROXY_PORT:-21060}"
+        if [[ -z "${L2_AUTH_PROXY_PORT:-}" ]] && command -v ss >/dev/null 2>&1; then
+            while ss -tln 2>/dev/null | grep -qE ":${listen_port}[[:space:]]"; do
+                listen_port=$((listen_port + 1))
+            done
+        fi
         local shim_so="${L2_PROJECT_ROOT}/tools/shims/l2_auth_redir.so"
         local shim_32="${L2_PROJECT_ROOT}/tools/shims/lib/i386-linux-gnu/l2_auth_redir.so"
         local shim_64="${L2_PROJECT_ROOT}/tools/shims/lib/x86_64-linux-gnu/l2_auth_redir.so"
@@ -233,9 +247,11 @@ print("1" if srv.get("vkbasalt") else "0")
         export WINEFSYNC=1
     fi
     if [[ "${opt_af16x}" == "1" ]]; then
-        export __GL_Aniso=4
         export __GL_SHADER_DISK_CACHE=1
         export __GL_SHADER_DISK_CACHE_PATH="${L2_TOOLS_DIR}/dxvk_cache"
+        if [[ "${opt_dxvk}" != "1" ]]; then
+            export __GL_Aniso=16
+        fi
     fi
 
     if [[ "${opt_dxvk}" == "1" && -f "${L2_TOOLS_DIR}/dxvk_32/d3d9.dll" ]]; then
@@ -254,13 +270,20 @@ print("1" if srv.get("vkbasalt") else "0")
 
     local -a launch_prefix=()
     if [[ "${opt_cpu_pinning}" == "1" ]] && command -v lscpu >/dev/null 2>&1; then
-        local phys_cpus phys_count
-        phys_cpus=$(lscpu -p=CPU,CORE | grep -v '^#' | awk -F, '!seen[$2]++ {printf "%s%s", (c++?",":""), $1}')
+        local phys_cpus phys_count cpu_slot="primarios"
+        if [[ "${has_active_l2}" == "1" ]]; then
+            phys_cpus=$(lscpu -p=CPU,CORE | grep -v '^#' | awk -F, 'seen[$2]++ == 1 {printf "%s%s", (c++?",":""), $1}')
+            cpu_slot="secundarios (dual-box SMT)"
+        fi
+        if [[ -z "${phys_cpus:-}" ]]; then
+            phys_cpus=$(lscpu -p=CPU,CORE | grep -v '^#' | awk -F, '!seen[$2]++ {printf "%s%s", (c++?",":""), $1}')
+            cpu_slot="primarios"
+        fi
         phys_count=$(awk -F, '{print NF}' <<< "${phys_cpus}")
         if [[ -n "${phys_cpus}" && "${phys_count}" -gt 0 ]]; then
             export WINE_CPU_TOPOLOGY="${phys_count}:${phys_cpus}"
             launch_prefix+=(taskset -c "${phys_cpus}")
-            log_info "CPU Pinning: ${phys_count} núcleos físicos (${phys_cpus})."
+            log_info "CPU Pinning: ${phys_count} hilos ${cpu_slot} (${phys_cpus})."
         fi
     fi
 
@@ -274,7 +297,7 @@ print("1" if srv.get("vkbasalt") else "0")
         export VKBASALT_CONFIG_FILE="${L2_TOOLS_DIR}/vkbasalt/vkBasalt.conf"
         export VK_ADD_LAYER_PATH="${L2_TOOLS_DIR}/vkbasalt/layer.d${VK_ADD_LAYER_PATH:+:${VK_ADD_LAYER_PATH}}"
         export VK_INSTANCE_LAYERS="VK_LAYER_VKBASALT_post_processing${VK_INSTANCE_LAYERS:+:${VK_INSTANCE_LAYERS}}"
-        log_info "vkBasalt 32-bit activo (CAS + SMAA, toggle: Home)."
+        log_info "vkBasalt 32-bit activo (SMAA + Tonemap + Vibrance + Curves + CAS, toggle: Home)."
     fi
 
     if [[ "${opt_mangohud}" == "1" ]]; then
