@@ -237,7 +237,7 @@ print("1" if srv.get("vkbasalt") else "0")
 
     if [[ "${opt_tcp_nodelay}" == "1" ]]; then
         export L2_TCP_NODELAY=1
-        log_info "Red TCP: TCP_NODELAY activo (sin retardo de Nagle)."
+        log_info "Red TCP: TCP_NODELAY + QUICKACK + Thin-Stream + Wi-Fi QoS (DSCP EF) activos por socket."
     fi
     if [[ "${opt_esync}" == "1" ]]; then
         export WINEESYNC=1

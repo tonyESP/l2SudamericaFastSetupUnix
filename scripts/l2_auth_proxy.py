@@ -19,9 +19,35 @@ from types import FrameType
 from typing import Optional
 
 
+_TCP_THIN_LINEAR_TIMEOUTS = 16
+_TCP_THIN_DUPACK = 17
+_DSCP_EF_TOS = 0xB8
+
+
+def _tune_tcp_socket(sock: socket.socket) -> None:
+    """Apply per-socket low-latency TCP and Wi-Fi WMM QoS flags."""
+    if sock.family != socket.AF_INET:
+        return
+    try:
+        sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+    except OSError:
+        pass
+    quickack = getattr(socket, "TCP_QUICKACK", 12)
+    for opt in (quickack, _TCP_THIN_LINEAR_TIMEOUTS, _TCP_THIN_DUPACK):
+        try:
+            sock.setsockopt(socket.IPPROTO_TCP, opt, 1)
+        except OSError:
+            pass
+    try:
+        sock.setsockopt(socket.IPPROTO_IP, socket.IP_TOS, _DSCP_EF_TOS)
+    except OSError:
+        pass
+
+
 def _relay_pair(client_sock: socket.socket, remote_sock: socket.socket) -> None:
     """Forward bytes bidirectionally until either peer closes or errors."""
     sockets = [client_sock, remote_sock]
+    quickack = getattr(socket, "TCP_QUICKACK", 12)
     try:
         while True:
             readable, _, _ = select.select(sockets, [], [], 60.0)
@@ -33,6 +59,11 @@ def _relay_pair(client_sock: socket.socket, remote_sock: socket.socket) -> None:
                     data = src.recv(8192)
                 except OSError:
                     return
+                if src.family == socket.AF_INET:
+                    try:
+                        src.setsockopt(socket.IPPROTO_TCP, quickack, 1)
+                    except OSError:
+                        pass
                 if not data:
                     return
                 try:
@@ -51,11 +82,13 @@ def _handle_client(
     connect_timeout: float,
 ) -> None:
     """Connect to the upstream AuthServer and relay traffic for one client."""
+    _tune_tcp_socket(client_sock)
     try:
         remote_sock = socket.create_connection(
             (target_host, target_port), timeout=connect_timeout
         )
         remote_sock.settimeout(None)
+        _tune_tcp_socket(remote_sock)
     except OSError:
         client_sock.close()
         return

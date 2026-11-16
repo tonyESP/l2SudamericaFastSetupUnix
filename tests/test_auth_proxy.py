@@ -58,6 +58,18 @@ class TestAuthProxy(unittest.TestCase):
             rem_end.close()
             relay_thread.join(timeout=2.0)
 
+    def test_tune_tcp_socket_sets_low_latency_flags(self):
+        sys.path.insert(0, os.path.join(PROJECT_ROOT, "scripts"))
+        import l2_auth_proxy
+
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            l2_auth_proxy._tune_tcp_socket(s)
+            self.assertEqual(s.getsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY), 1)
+            self.assertEqual(s.getsockopt(socket.IPPROTO_IP, socket.IP_TOS) & 0xFC, 0xB8 & 0xFC)
+        finally:
+            s.close()
+
 
 if __name__ == "__main__":
     unittest.main()

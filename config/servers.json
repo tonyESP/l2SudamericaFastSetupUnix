@@ -61,41 +61,6 @@
         "port": 2106
       },
       "winetricks": ["corefonts", "tahoma", "d3dx9", "vcrun2008", "msxml4"]
-    },
-    "l2sudamerica-lab": {
-      "id": "l2sudamerica-lab",
-      "name": "L2 Sudamerica (Interlude x10 - Lab Experimental)",
-      "chronicle": "Interlude (C6)",
-      "rates": {
-        "exp": "x10",
-        "sp": "x10",
-        "adena": "x7",
-        "drop": "x7",
-        "spoil": "x7"
-      },
-      "style": "Hispano LATAM: Lab DXVK + vkBasalt Remaster Extreme + MangoHud (GPUAnimation=False)",
-      "website": "https://l2sudamerica.com",
-      "anticheat": "Win32 Estándar (Experimental)",
-      "linux_status": "Experimental / Lab",
-      "client_dir": "clients/l2sudamerica-lab",
-      "prefix_dir": "prefixes/l2sudamerica-lab",
-      "executable": "system/L2.exe",
-      "runner": "wine-11.22-staging-amd64",
-      "dxvk": true,
-      "mangohud": true,
-      "vkbasalt": true,
-      "gamemode": true,
-      "cpu_pinning": true,
-      "tcp_nodelay": true,
-      "ram_prewarm": true,
-      "wine_esync": true,
-      "wine_fsync": true,
-      "nvidia_af_16x": true,
-      "auth_proxy": {
-        "host": "l2.lineage2sudamerica.com",
-        "port": 2106
-      },
-      "winetricks": ["corefonts", "tahoma", "d3dx9", "vcrun2008", "msxml4"]
     }
   }
 }
