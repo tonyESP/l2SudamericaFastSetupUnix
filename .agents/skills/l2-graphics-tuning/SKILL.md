@@ -44,7 +44,10 @@ Para llevar el cliente más allá de WineD3D sin tocar `l2.ini` (cifrado RSA) ni
   - `dxvk.allowFse = False`, `d3d9.deviceLossOnFocusLoss = False` (evita cuelgues al cambiar de ventana / Alt+Tab).
   - `d3d9.samplerAnisotropy = 16`, `d3d9.samplerLodBias = -0.25`, `d3d9.clampNegativeLodBias = False`, `d3d9.seamlessCubes = True`, `dxvk.numCompilerThreads = 4` (evita *shimmer*/trama en DXT de 2006 y contención de hilos en dual-box).
 - **Sistema y Red (`l2_ctl.sh`, `l2_auth_redir.so`, `l2_auth_proxy.py`)**:
-  - Catálogo simplificado a 2 perfiles activos (`l2sudamerica-interlude` fallback seguro y `l2sudamerica-optimized` producción).
+  - Catálogo de 3 perfiles operativos:
+    1. `l2sudamerica-interlude`: fallback seguro bajo WineD3D.
+    2. `l2sudamerica-optimized`: días normales (DXVK + vkBasalt Remaster Extreme, `Pawn=6.0`, `AF=16x`).
+    3. `l2sudamerica-siege`: días de asedio / Mass PvP Ultra-FPS (`vkbasalt=false`, DXVK `AF=4x`/`LOD=0.0`, `ModelDetail=1`, `SkipAnim=1`, `PawnShadow=False`, `RenderDeco=False`, `WeatherEffect=0`, `RenderActorLimited=2`, `L2WaterEffect.IsUseEffect=False`, `Pawn=3.0`, `[Damage]` sin `HP+/MP+/CP+/EXP+`).
   - Pinning Dual-Box automático (`taskset` + `WINE_CPU_TOPOLOGY`): 1.ª instancia en hilos primarios (`0..7`), 2.ª instancia en hilos SMT (`8..15`), puerto del auth relay auto-incrementado (`21060`, `21061`, ...), omisión de `ram_prewarm` redundante si ya hay `L2.exe` activo, `gamemoderun` y `MangoHud` con `fps_metrics=0.01`.
   - Red por socket sin privilegios (`L2_TCP_NODELAY=1`, en 32 y 64 bits con `$LIB`): `TCP_NODELAY` blindado en `setsockopt`, `TCP_QUICKACK`, `TCP_THIN_LINEAR_TIMEOUTS`, `TCP_THIN_DUPACK` e `IP_TOS=0xb8` (DSCP EF / Wi-Fi WMM Voz `AC_VO`) tanto en `l2_auth_redir.so` como en `l2_auth_proxy.py`.
 - **Post-procesado Vulkan 32-bit (`vkBasalt` en `l2sudamerica-optimized`)**:

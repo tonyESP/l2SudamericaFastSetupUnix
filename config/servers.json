@@ -61,6 +61,41 @@
         "port": 2106
       },
       "winetricks": ["corefonts", "tahoma", "d3dx9", "vcrun2008", "msxml4"]
+    },
+    "l2sudamerica-siege": {
+      "id": "l2sudamerica-siege",
+      "name": "L2 Sudamerica (Interlude x10 - Siege / Mass PvP Ultra-FPS)",
+      "chronicle": "Interlude (C6)",
+      "rates": {
+        "exp": "x10",
+        "sp": "x10",
+        "adena": "x7",
+        "drop": "x7",
+        "spoil": "x7"
+      },
+      "style": "Hispano LATAM: Perfil Asedio / Mass PvP (DXVK Puro + CPU Low-Overhead + Red Baja Latencia)",
+      "website": "https://l2sudamerica.com",
+      "anticheat": "Win32 Estándar (Compatible Wine/DXVK)",
+      "linux_status": "Verified / Excellent",
+      "client_dir": "clients/l2sudamerica-siege",
+      "prefix_dir": "prefixes/l2sudamerica-siege",
+      "executable": "system/L2.exe",
+      "runner": "wine-11.22-staging-amd64",
+      "dxvk": true,
+      "mangohud": true,
+      "vkbasalt": false,
+      "gamemode": true,
+      "cpu_pinning": true,
+      "tcp_nodelay": true,
+      "ram_prewarm": true,
+      "wine_esync": true,
+      "wine_fsync": true,
+      "nvidia_af_16x": true,
+      "auth_proxy": {
+        "host": "l2.lineage2sudamerica.com",
+        "port": 2106
+      },
+      "winetricks": ["corefonts", "tahoma", "d3dx9", "vcrun2008", "msxml4"]
     }
   }
 }

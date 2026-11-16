@@ -28,7 +28,7 @@ class TestL2CtlOrchestrator(unittest.TestCase):
         self.assertEqual(res.returncode, 0, f"List failed: {res.stderr}")
         self.assertIn("l2sudamerica-interlude", res.stdout)
         self.assertIn("l2sudamerica-optimized", res.stdout)
-        self.assertNotIn("l2sudamerica-lab", res.stdout)
+        self.assertIn("l2sudamerica-siege", res.stdout)
         self.assertNotIn("l2frenzy-interlude", res.stdout)
 
     def test_download_command_delegation(self):
