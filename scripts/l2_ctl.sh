@@ -228,6 +228,10 @@ print("1" if srv.get("vkbasalt") else "0")
         log_info "Auth relay activo en 127.0.0.1:${listen_port} -> ${proxy_host}:${proxy_port}"
     fi
 
+    if [[ -f "${client_system_dir}/Option.ini" ]]; then
+        sed -i -E 's/^UseAGP=.*/UseAGP=False\r/; s/^GPUAnimation=.*/GPUAnimation=False\r/; s/^PostProc=.*/PostProc=0\r/' "${client_system_dir}/Option.ini"
+    fi
+
     export WINE="${runner_bin}"
     export WINEPREFIX="${prefix_path}"
     export DXVK_CONFIG_FILE="${client_system_dir}/dxvk.conf"
