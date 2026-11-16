@@ -229,7 +229,7 @@ print("1" if srv.get("vkbasalt") else "0")
     fi
 
     if [[ -f "${client_system_dir}/Option.ini" ]]; then
-        sed -i -E 's/^UseAGP=.*/UseAGP=False\r/; s/^GPUAnimation=.*/GPUAnimation=False\r/; s/^PostProc=.*/PostProc=0\r/' "${client_system_dir}/Option.ini"
+        sed -i -E 's/^UseAGP=.*/UseAGP=False\r/; s/^GPUAnimation=.*/GPUAnimation=False\r/; s/^PostProc=.*/PostProc=0\r/; s/^StartupFullScreen=.*/StartupFullScreen=False\r/' "${client_system_dir}/Option.ini"
     fi
 
     export WINE="${runner_bin}"
