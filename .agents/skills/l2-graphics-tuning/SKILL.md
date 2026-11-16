@@ -47,7 +47,7 @@ Para llevar el cliente más allá de WineD3D sin tocar `l2.ini` (cifrado RSA) ni
   - Pinning en los 8 núcleos físicos sin Hyper-Threading (`taskset` + `WINE_CPU_TOPOLOGY`), `gamemoderun`, `ram_prewarm` en Page Cache y `TCP_NODELAY` en `l2_auth_redir.so` (32 y 64 bits con `$LIB`).
 - **Post-procesado Vulkan 32-bit (`vkBasalt` en `l2sudamerica-lab`)**:
   - **Perfil anterior (backup `vkBasalt.conf.bak-remaster`)**: `effects = deband:smaa:vibrance:curves:cas` (`Vibrance=0.38`, `Contrast=0.45`, `casSharpness=0.65`).
-  - **Perfil Remaster Extreme actual**: `effects = deband:smaa:hdr:tonemap:vibrance:curves:cas` (`FakeHDR` `HDRPower=1.10`, `Tonemap` `Gamma=0.90`/`Exposure=0.08`/`Saturation=0.08`/`Defog=0.0`, `Vibrance=0.32`, `Contrast=0.30`, `casSharpness=0.72`, toggle en vivo con `Home`).
+  - **Perfil Remaster Extreme actual**: `effects = deband:smaa:tonemap:vibrance:curves:cas` (`Tonemap` `Gamma=0.88`/`Exposure=0.08`/`Saturation=0.08`/`Defog=0.0`, `Vibrance=0.34`, `Contrast=0.32`, `casSharpness=0.45`, toggle en vivo con `Home`; `FakeHDR` retirado para evitar trama/ringing junto a `CAS`).
   - **Motor UE2.5 (`clients/l2sudamerica-lab/system/Option.ini`, backup `Option.ini.bak-remaster`)**: `PostProc=1`, `L2WaterEffect.EffectType=2`, `[ClippingRange]` ampliado (`Terrain=10`, `Actor=8`, `StaticMesh=8`, `StaticMeshLod=8`, `Pawn=6`).
   - Mantener `AntiAliasing=0` y `GPUAnimation=False` en `Option.ini` (con `GPUAnimation=True` crashea en Gatekeeper/ciudad; `AntiAliasing>0` puede bloquear `depthCapture` en Vulkan/DXVK).
 
