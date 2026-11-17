@@ -258,6 +258,22 @@ print("1" if srv.get("vkbasalt") else "0")
         sed -i -E 's/^UseAGP=.*/UseAGP=False\r/; s/^GPUAnimation=.*/GPUAnimation=False\r/; s/^PostProc=.*/PostProc=0\r/; s/^StartupFullScreen=.*/StartupFullScreen=False\r/' "${client_system_dir}/Option.ini"
     fi
 
+    local peer_dir=""
+    if [[ "${s_id}" == "l2sudamerica-optimized" ]]; then
+        peer_dir="${L2_CLIENTS_DIR}/l2sudamerica-siege"
+    elif [[ "${s_id}" == "l2sudamerica-siege" ]]; then
+        peer_dir="${L2_CLIENTS_DIR}/l2sudamerica-optimized"
+    fi
+    if [[ -n "${peer_dir}" && -d "${peer_dir}" ]]; then
+        mkdir -p "${client_dir}/iwo" "${client_dir}/crest"
+        [[ -f "${peer_dir}/system/WindowsInfo.ini" ]] && cp -pu "${peer_dir}/system/WindowsInfo.ini" "${client_system_dir}/WindowsInfo.ini" 2>/dev/null || true
+        cp -pu "${peer_dir}/iwo/"* "${client_dir}/iwo/" 2>/dev/null || true
+        cp -pu "${peer_dir}/crest/"* "${client_dir}/crest/" 2>/dev/null || true
+        [[ -f "${client_system_dir}/WindowsInfo.ini" ]] && cp -pu "${client_system_dir}/WindowsInfo.ini" "${peer_dir}/system/WindowsInfo.ini" 2>/dev/null || true
+        cp -pu "${client_dir}/iwo/"* "${peer_dir}/iwo/" 2>/dev/null || true
+        cp -pu "${client_dir}/crest/"* "${peer_dir}/crest/" 2>/dev/null || true
+    fi
+
     export WINE="${runner_bin}"
     export WINEPREFIX="${prefix_path}"
     export DXVK_CONFIG_FILE="${client_system_dir}/dxvk.conf"
@@ -296,6 +312,11 @@ print("1" if srv.get("vkbasalt") else "0")
         export DXVK_STATE_CACHE_PATH="${L2_TOOLS_DIR}/dxvk_cache"
         export WINEDLLOVERRIDES="d3d9=n,b;dxgi=n,b${WINEDLLOVERRIDES:+;${WINEDLLOVERRIDES}}"
         log_info "Backend gráfico: DXVK (Vulkan) + State Cache activo."
+    fi
+
+    if [[ "${has_active_l2}" == "1" ]]; then
+        export WINEDLLOVERRIDES="winepulse.drv=d;winealsa.drv=d${WINEDLLOVERRIDES:+;${WINEDLLOVERRIDES}}"
+        log_info "Audio Dual-Box: 2.ª instancia silenciada automáticamente (0 CPU de audio)."
     fi
 
     local -a launch_prefix=()

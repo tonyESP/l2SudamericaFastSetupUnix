@@ -47,7 +47,12 @@ Para llevar el cliente más allá de WineD3D sin tocar `l2.ini` (cifrado RSA) ni
   - Catálogo de 3 perfiles operativos:
     1. `l2sudamerica-interlude`: fallback seguro bajo WineD3D.
     2. `l2sudamerica-optimized`: días normales (DXVK + vkBasalt Remaster Extreme, `Pawn=6.0`, `AF=16x`).
-    3. `l2sudamerica-siege`: días de asedio / Mass PvP Ultra-FPS (`vkbasalt=false`, DXVK `AF=4x`/`LOD=0.0`, `ModelDetail=1`, `SkipAnim=1`, `PawnShadow=False`, `RenderDeco=False`, `WeatherEffect=0`, `RenderActorLimited=2`, `L2WaterEffect.IsUseEffect=False`, `Pawn=3.0`, `[Damage]` sin `HP+/MP+/CP+/EXP+`).
+    3. `l2sudamerica-siege`: días de asedio / Mass PvP Ultra-FPS (`vkbasalt=false`, DXVK `AF=4x`/`LOD=0.0`, `ModelDetail=1`, `SkipAnim=1`, `PawnShadow=False`, `RenderDeco=False`, `WeatherEffect=0`, `RenderActorLimited=2`, `L2WaterEffect.IsUseEffect=False`, `Pawn=3.0`, `[Audio]` sin música/voz `.ogg`, `[Damage]` sin `HP+/MP+/CP+/EXP+`).
+  - **Ergonomía Dual-Box y Escritorio**:
+    - Sincronización bidireccional automática (`cp -pu`) de `WindowsInfo.ini`, `iwo/*` y `crest/*` entre `l2sudamerica-optimized` y `l2sudamerica-siege` al arrancar.
+    - Silenciado automático de audio en 2.ª instancia (`winepulse.drv=d;winealsa.drv=d` cuando `has_active_l2=1`).
+    - Aceleración de ratón Wine desactivada (`MouseSpeed=0`, `MouseThreshold1=0`, `MouseThreshold2=0` en `prefixes/*/user.reg`) para giro de cámara lineal 1:1.
+    - Lanzadores `.desktop` e icono [l2-icon.png](file:///mnt/disk4u/L2/config/l2-icon.png) en `config/` (`l2sudamerica-optimized.desktop`, `l2sudamerica-siege.desktop`).
   - Pinning Dual-Box automático (`taskset` + `WINE_CPU_TOPOLOGY`): 1.ª instancia en hilos primarios (`0..7`), 2.ª instancia en hilos SMT (`8..15`), puerto del auth relay auto-incrementado (`21060`, `21061`, ...), omisión de `ram_prewarm` redundante si ya hay `L2.exe` activo, `gamemoderun` y `MangoHud` con `fps_metrics=0.01`.
   - Red por socket sin privilegios (`L2_TCP_NODELAY=1`, en 32 y 64 bits con `$LIB`): `TCP_NODELAY` blindado en `setsockopt`, `TCP_QUICKACK`, `TCP_THIN_LINEAR_TIMEOUTS`, `TCP_THIN_DUPACK` e `IP_TOS=0xb8` (DSCP EF / Wi-Fi WMM Voz `AC_VO`) tanto en `l2_auth_redir.so` como en `l2_auth_proxy.py`.
 - **Post-procesado Vulkan 32-bit (`vkBasalt` en `l2sudamerica-optimized`)**:

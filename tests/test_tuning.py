@@ -34,6 +34,19 @@ class TestTuningTemplates(unittest.TestCase):
         self.assertIn("StartupResolutionY=1080", content)
         self.assertIn("ColorBits=32", content)
 
+    def test_desktop_launchers_and_icon_exist(self):
+        icon_path = os.path.join(PROJECT_ROOT, "config", "l2-icon.png")
+        self.assertTrue(os.path.isfile(icon_path), f"Missing L2 icon: {icon_path}")
+        self.assertGreater(os.path.getsize(icon_path), 500, "L2 icon appears empty")
+
+        for profile in ("l2sudamerica-optimized", "l2sudamerica-siege"):
+            desktop_path = os.path.join(PROJECT_ROOT, "config", f"{profile}.desktop")
+            self.assertTrue(os.path.isfile(desktop_path), f"Missing desktop entry: {desktop_path}")
+            with open(desktop_path, "r", encoding="utf-8") as f:
+                d_content = f.read()
+            self.assertIn(f"Exec=/mnt/disk4u/L2/scripts/l2_ctl.sh run {profile}", d_content)
+            self.assertIn(f"Icon={icon_path}", d_content)
+
 
 if __name__ == "__main__":
     unittest.main()
