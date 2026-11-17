@@ -166,19 +166,45 @@ print("1" if srv.get("vkbasalt") else "0")
 
     _L2_AUTH_PROXY_PID=""
     _L2_PREWARM_PID=""
+    _L2_NETLOG_PID=""
+    local _netlog_file="${L2_PROJECT_ROOT}/net_telemetry.log"
     cleanup_run() {
-        for _pid in "${_L2_AUTH_PROXY_PID:-}" "${_L2_PREWARM_PID:-}"; do
+        for _pid in "${_L2_AUTH_PROXY_PID:-}" "${_L2_PREWARM_PID:-}" "${_L2_NETLOG_PID:-}"; do
             if [[ -n "${_pid}" ]] && kill -0 "${_pid}" 2>/dev/null; then
                 kill "${_pid}" 2>/dev/null || true
                 wait "${_pid}" 2>/dev/null || true
             fi
         done
+        if [[ -f "${_netlog_file}" ]]; then
+            tail -n 200 "${_netlog_file}" > "${_netlog_file}.tmp" 2>/dev/null && mv -f "${_netlog_file}.tmp" "${_netlog_file}" || true
+        fi
     }
     trap cleanup_run EXIT
 
     local has_active_l2=0
     if command -v pgrep >/dev/null 2>&1 && pgrep -fi '[/\\]L2\.exe([[:space:]]|$)' >/dev/null 2>&1; then
         has_active_l2=1
+    fi
+
+    if command -v ss >/dev/null 2>&1; then
+        (
+            _sleep_pid=""
+            trap '[[ -n "${_sleep_pid}" ]] && kill "${_sleep_pid}" 2>/dev/null || true; exit 0' TERM INT
+            while true; do
+                sleep 30 &
+                _sleep_pid=$!
+                wait "${_sleep_pid}" 2>/dev/null || exit 0
+                _sleep_pid=""
+                snap=$(ss -tin state established '( dport = :7777 )' 2>/dev/null | grep -Ev '^(State|Recv-Q)' || true)
+                if [[ -n "${snap}" ]]; then
+                    {
+                        printf '[%s] [%s]\n' "$(date '+%Y-%m-%d %H:%M:%S')" "${s_id}"
+                        printf '%s\n' "${snap}"
+                    } >> "${_netlog_file}"
+                fi
+            done
+        ) &
+        _L2_NETLOG_PID=$!
     fi
 
     if [[ "${opt_ram_prewarm}" == "1" ]]; then
