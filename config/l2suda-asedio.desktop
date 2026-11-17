@@ -1,7 +1,7 @@
 [Desktop Entry]
 Version=1.0
 Type=Application
-Name=Lineage 2 — Sudamerica (Siege Ultra-FPS)
+Name=l2suda-asedio
 Comment=Cliente ultra-optimizado para Asedios y Mass PvP (0 bajones)
 Exec=/mnt/disk4u/L2/scripts/l2_ctl.sh run l2suda-asedio
 Path=/mnt/disk4u/L2

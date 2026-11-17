@@ -44,6 +44,7 @@ class TestTuningTemplates(unittest.TestCase):
             self.assertTrue(os.path.isfile(desktop_path), f"Missing desktop entry: {desktop_path}")
             with open(desktop_path, "r", encoding="utf-8") as f:
                 d_content = f.read()
+            self.assertIn(f"Name={profile}\n", d_content)
             self.assertIn(f"Exec=/mnt/disk4u/L2/scripts/l2_ctl.sh run {profile}", d_content)
             self.assertIn(f"Icon={icon_path}", d_content)
 
