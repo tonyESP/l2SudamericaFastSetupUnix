@@ -88,6 +88,9 @@ python3 -m unittest discover -s tests -p "test_*.py" -v
 # Instalar lanzadores en el menú de aplicaciones (actualiza la ruta si no clonas en /mnt/disk4u/L2)
 cp -f config/l2suda-*.desktop ~/.local/share/applications/
 
+# Actualizar parches oficiales del servidor (sin pisar DXVK y copiando cambios a asedio)
+./scripts/l2_ctl.sh update
+
 # Arrancar
 ./scripts/l2_ctl.sh run l2suda-optimizado
 ```

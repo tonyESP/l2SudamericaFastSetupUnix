@@ -376,13 +376,33 @@ cmd_download() {
     "${SCRIPT_DIR}/download_clients.sh" "$@"
 }
 
+cmd_update() {
+    local target_id="${1:-l2suda-optimizado}"
+    local target_dir="${L2_CLIENTS_DIR}/${target_id}"
+    if [[ ! -d "${target_dir}" ]]; then
+        log_error "No existe el cliente '${target_dir}'."
+        exit 1
+    fi
+
+    local -a updater_args=("${target_dir}")
+    if [[ "${target_id}" == "l2suda-optimizado" && -d "${L2_CLIENTS_DIR}/l2suda-asedio" ]]; then
+        updater_args+=(--mirror-dir "${L2_CLIENTS_DIR}/l2suda-asedio")
+        log_info "Actualizando '${target_id}' y replicando parches en 'l2suda-asedio'..."
+    else
+        log_info "Actualizando '${target_id}' desde updater.ini..."
+    fi
+
+    python3 "${SCRIPT_DIR}/l2_updater.py" "${updater_args[@]}"
+}
+
 usage() {
-    echo "Uso: $0 {list|doctor|download <args>|setup <server_id>|run <server_id>}"
+    echo "Uso: $0 {list|doctor|download <args>|update [id]|setup <server_id>|run <server_id>}"
     echo ""
     echo "Comandos:"
     echo "  list               Lista los servidores y el estado de clientes y prefijos"
     echo "  doctor             Verifica hardware, controladores y dependencias de ejecución"
     echo "  download <args>    Gestiona la descarga y extracción de clientes (download_clients.sh)"
+    echo "  update [id]        Sincroniza parches del servidor (sin pisar DXVK) y re-parchea D3DDrv.dll"
     echo "  setup <server_id>  Aprovisiona de forma desatendida el prefijo Wine y aplica el fine-tuning"
     echo "  run <server_id>    Lanza el juego con aceleración NVIDIA y DXVK"
     echo ""
@@ -392,6 +412,7 @@ case "${1:-}" in
     list)     cmd_list ;;
     doctor)   cmd_doctor ;;
     download) shift; cmd_download "$@" ;;
+    update)   shift; cmd_update "$@" ;;
     setup)    shift; cmd_setup "$@" ;;
     run)      shift; cmd_run "$@" ;;
     *)        usage ;;
