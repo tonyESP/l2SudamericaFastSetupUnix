@@ -39,7 +39,7 @@ class TestTuningTemplates(unittest.TestCase):
         self.assertTrue(os.path.isfile(icon_path), f"Missing L2 icon: {icon_path}")
         self.assertGreater(os.path.getsize(icon_path), 500, "L2 icon appears empty")
 
-        for profile in ("l2sudamerica-optimized", "l2sudamerica-siege"):
+        for profile in ("l2suda-optimizado", "l2suda-asedio"):
             desktop_path = os.path.join(PROJECT_ROOT, "config", f"{profile}.desktop")
             self.assertTrue(os.path.isfile(desktop_path), f"Missing desktop entry: {desktop_path}")
             with open(desktop_path, "r", encoding="utf-8") as f:

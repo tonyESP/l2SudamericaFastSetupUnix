@@ -27,8 +27,8 @@ class TestL2CtlOrchestrator(unittest.TestCase):
         res = subprocess.run([L2_CTL, "list"], capture_output=True, text=True)
         self.assertEqual(res.returncode, 0, f"List failed: {res.stderr}")
         self.assertIn("l2sudamerica-interlude", res.stdout)
-        self.assertIn("l2sudamerica-optimized", res.stdout)
-        self.assertIn("l2sudamerica-siege", res.stdout)
+        self.assertIn("l2suda-optimizado", res.stdout)
+        self.assertIn("l2suda-asedio", res.stdout)
         self.assertNotIn("l2frenzy-interlude", res.stdout)
 
     def test_download_command_delegation(self):

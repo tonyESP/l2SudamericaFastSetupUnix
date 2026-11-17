@@ -133,8 +133,8 @@
       ],
       "staging_dir": "clients/l2sudamerica-interlude"
     },
-    "l2sudamerica-optimized": {
-      "server_id": "l2sudamerica-optimized",
+    "l2suda-optimizado": {
+      "server_id": "l2suda-optimizado",
       "name": "L2 Sudamerica (Interlude x10 - Optimized)",
       "chronicle": "Interlude (C6)",
       "client": {
@@ -162,10 +162,10 @@
       "shared_assets": [
         "music"
       ],
-      "staging_dir": "clients/l2sudamerica-optimized"
+      "staging_dir": "clients/l2suda-optimizado"
     },
-    "l2sudamerica-siege": {
-      "server_id": "l2sudamerica-siege",
+    "l2suda-asedio": {
+      "server_id": "l2suda-asedio",
       "name": "L2 Sudamerica (Interlude x10 - Siege / Mass PvP Ultra-FPS)",
       "chronicle": "Interlude (C6)",
       "client": {
@@ -193,7 +193,7 @@
       "shared_assets": [
         "music"
       ],
-      "staging_dir": "clients/l2sudamerica-siege"
+      "staging_dir": "clients/l2suda-asedio"
     }
   }
 }

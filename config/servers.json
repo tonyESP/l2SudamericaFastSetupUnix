@@ -27,8 +27,8 @@
       },
       "winetricks": ["corefonts", "tahoma", "d3dx9", "vcrun2008", "msxml4"]
     },
-    "l2sudamerica-optimized": {
-      "id": "l2sudamerica-optimized",
+    "l2suda-optimizado": {
+      "id": "l2suda-optimizado",
       "name": "L2 Sudamerica (Interlude x10 - Optimized)",
       "chronicle": "Interlude (C6)",
       "rates": {
@@ -42,8 +42,8 @@
       "website": "https://l2sudamerica.com",
       "anticheat": "Win32 Estándar (Compatible Wine/DXVK)",
       "linux_status": "Verified / Excellent",
-      "client_dir": "clients/l2sudamerica-optimized",
-      "prefix_dir": "prefixes/l2sudamerica-optimized",
+      "client_dir": "clients/l2suda-optimizado",
+      "prefix_dir": "prefixes/l2suda-optimizado",
       "executable": "system/L2.exe",
       "runner": "wine-11.22-staging-amd64",
       "dxvk": true,
@@ -62,8 +62,8 @@
       },
       "winetricks": ["corefonts", "tahoma", "d3dx9", "vcrun2008", "msxml4"]
     },
-    "l2sudamerica-siege": {
-      "id": "l2sudamerica-siege",
+    "l2suda-asedio": {
+      "id": "l2suda-asedio",
       "name": "L2 Sudamerica (Interlude x10 - Siege / Mass PvP Ultra-FPS)",
       "chronicle": "Interlude (C6)",
       "rates": {
@@ -77,8 +77,8 @@
       "website": "https://l2sudamerica.com",
       "anticheat": "Win32 Estándar (Compatible Wine/DXVK)",
       "linux_status": "Verified / Excellent",
-      "client_dir": "clients/l2sudamerica-siege",
-      "prefix_dir": "prefixes/l2sudamerica-siege",
+      "client_dir": "clients/l2suda-asedio",
+      "prefix_dir": "prefixes/l2suda-asedio",
       "executable": "system/L2.exe",
       "runner": "wine-11.22-staging-amd64",
       "dxvk": true,

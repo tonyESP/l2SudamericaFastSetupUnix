@@ -24,11 +24,11 @@ log_info "Aplicando fine-tuning a: ${SERVER_ID}..."
 DXVK_TEMPLATE="${L2_CONFIG_DIR}/dxvk.conf.template"
 OPT_TEMPLATE="${L2_CONFIG_DIR}/Option.ini.template"
 case "${SERVER_ID}" in
-    l2sudamerica-siege)
+    l2suda-asedio)
         [[ -f "${L2_CONFIG_DIR}/dxvk.siege.conf.template" ]] && DXVK_TEMPLATE="${L2_CONFIG_DIR}/dxvk.siege.conf.template"
         [[ -f "${L2_CONFIG_DIR}/Option.siege.ini.template" ]] && OPT_TEMPLATE="${L2_CONFIG_DIR}/Option.siege.ini.template"
         ;;
-    l2sudamerica-optimized)
+    l2suda-optimizado)
         [[ -f "${L2_CONFIG_DIR}/Option.optimized.ini.template" ]] && OPT_TEMPLATE="${L2_CONFIG_DIR}/Option.optimized.ini.template"
         ;;
 esac

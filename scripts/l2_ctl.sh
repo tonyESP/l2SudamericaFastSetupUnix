@@ -259,10 +259,10 @@ print("1" if srv.get("vkbasalt") else "0")
     fi
 
     local peer_dir=""
-    if [[ "${s_id}" == "l2sudamerica-optimized" ]]; then
-        peer_dir="${L2_CLIENTS_DIR}/l2sudamerica-siege"
-    elif [[ "${s_id}" == "l2sudamerica-siege" ]]; then
-        peer_dir="${L2_CLIENTS_DIR}/l2sudamerica-optimized"
+    if [[ "${s_id}" == "l2suda-optimizado" ]]; then
+        peer_dir="${L2_CLIENTS_DIR}/l2suda-asedio"
+    elif [[ "${s_id}" == "l2suda-asedio" ]]; then
+        peer_dir="${L2_CLIENTS_DIR}/l2suda-optimizado"
     fi
     if [[ -n "${peer_dir}" && -d "${peer_dir}" ]]; then
         mkdir -p "${client_dir}/iwo" "${client_dir}/crest"

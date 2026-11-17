@@ -9,8 +9,8 @@ Repositorio de ingeniería para aprovisionar, optimizar y ejecutar **Lineage 2 I
 | Perfil (`server_id`) | Uso recomendado | Pila gráfica y ajustes clave |
 |---|---|---|
 | `l2sudamerica-interlude` | Fallback seguro / compatibilidad | WineD3D clásico (sin DXVK ni vkBasalt) |
-| `l2sudamerica-optimized` | **Juego diario ("Bonito")** | DXVK (`AF 16x`, `LOD -0.25`) + `vkBasalt` (`smaa:tonemap:vibrance:curves:cas`) + `Pawn=6.0`, `StaticMesh=8.0` |
-| `l2sudamerica-siege` | **Asedios y Mass PvP (0 bajones)** | DXVK puro (`vkbasalt=false`, `AF 4x`, `LOD 0.0`) + CPU baja carga (`Pawn=3.0`, `SkipAnim=1`, `ModelDetail=1`, sin sombras de PJ/hierba/agua/música `.ogg`/números de cura) |
+| `l2suda-optimizado` | **Juego diario ("Bonito")** | DXVK (`AF 16x`, `LOD -0.25`) + `vkBasalt` (`smaa:tonemap:vibrance:curves:cas`) + `Pawn=6.0`, `StaticMesh=8.0` |
+| `l2suda-asedio` | **Asedios y Mass PvP (0 bajones)** | DXVK puro (`vkbasalt=false`, `AF 4x`, `LOD 0.0`) + CPU baja carga (`Pawn=3.0`, `SkipAnim=1`, `ModelDetail=1`, sin sombras de PJ/hierba/agua/música `.ogg`/números de cura) |
 
 Todos los perfiles arrancan con **lanzador blindado** (`scripts/l2_ctl.sh`): antes de abrir `L2.exe` fuerza automáticamente `UseAGP=False`, `GPUAnimation=False`, `PostProc=0` (evita GPF en `UHDREffect::PostRender` y `GetVertexShader`) y `StartupFullScreen=False` (evita pantallazos negros por FSE).
 
@@ -29,7 +29,7 @@ Al lanzar una segunda ventana con `./scripts/l2_ctl.sh run <perfil>`, `l2_ctl.sh
 2. **Aísla el Auth Relay**: si el puerto `21060` está ocupado, abre `21061`, `21062`... para que cerrar una cuenta no desconecte la otra.
 3. **Silencia el audio de la 2.ª ventana**: desactiva `winepulse.drv` y `winealsa.drv` (`WINEDLLOVERRIDES`) en la 2.ª cuenta para ahorrar CPU y evitar audio duplicado.
 4. **Omite `ram_prewarm` redundante** si ya hay una instancia leyendo los paquetes.
-5. **Sincroniza Interfaz, Barras y Emblemas**: copia bidireccionalmente con `cp -pu` los archivos más recientes de `system/WindowsInfo.ini`, `iwo/*` y `crest/*` entre `l2sudamerica-optimized` y `l2sudamerica-siege`, manteniendo separados `Option.ini` y `dxvk.conf`.
+5. **Sincroniza Interfaz, Barras y Emblemas**: copia bidireccionalmente con `cp -pu` los archivos más recientes de `system/WindowsInfo.ini`, `iwo/*` y `crest/*` entre `l2suda-optimizado` y `l2suda-asedio`, manteniendo separados `Option.ini` y `dxvk.conf`.
 6. **Ratón lineal 1:1**: `scripts/provision_prefix.sh` desactiva la aceleración en `user.reg` (`MouseSpeed=0`, `MouseThreshold1=0`, `MouseThreshold2=0`) para evitar giros bruscos de cámara.
 
 ### C. Red transatlántica de baja latencia por socket (sin `sudo` / sin tocar el sistema)
@@ -68,7 +68,7 @@ python3 -m unittest discover -s tests -p "test_*.py" -v
 ```
 
 ### Paso 3: Colocar cliente y herramientas binarias
-1. **Cliente**: descomprime tu cliente L2 Sudamérica dentro de `clients/l2sudamerica-optimized/` (y opcionalmente una copia en `clients/l2sudamerica-siege/` y `clients/l2sudamerica-interlude/`). Elimina `system/d3d9.dll` original si trae `d3d9_R21B.dll` para que lo gestione DXVK/Wine.
+1. **Cliente**: descomprime tu cliente L2 Sudamérica dentro de `clients/l2suda-optimizado/` (y opcionalmente una copia en `clients/l2suda-asedio/` y `clients/l2sudamerica-interlude/`). Elimina `system/d3d9.dll` original si trae `d3d9_R21B.dll` para que lo gestione DXVK/Wine.
 2. **Wine Runner**: instala `wine-11.22-staging-amd64` en `tools/runners/wine-11.22-staging-amd64/` (o usa el `wine` del sistema).
 3. **DXVK 32-bit + vkBasalt + MangoHud**:
    - Copia `d3d9.dll` y `dxgi.dll` (32-bit de DXVK) en `tools/dxvk_32/`.
@@ -78,18 +78,18 @@ python3 -m unittest discover -s tests -p "test_*.py" -v
 ### Paso 4: Aprovisionar prefijos, aplicar plantillas y lanzar
 ```bash
 # Crear prefijos Wine 32-bit (winetricks + ratón lineal 1:1)
-./scripts/l2_ctl.sh setup l2sudamerica-optimized
-./scripts/l2_ctl.sh setup l2sudamerica-siege
+./scripts/l2_ctl.sh setup l2suda-optimizado
+./scripts/l2_ctl.sh setup l2suda-asedio
 
 # Inyectar dxvk.conf, Option.ini y vkBasalt.conf adaptados a tu ruta
-./scripts/apply_tuning.sh l2sudamerica-optimized
-./scripts/apply_tuning.sh l2sudamerica-siege
+./scripts/apply_tuning.sh l2suda-optimizado
+./scripts/apply_tuning.sh l2suda-asedio
 
 # Instalar lanzadores en el menú de aplicaciones (actualiza la ruta si no clonas en /mnt/disk4u/L2)
-cp -f config/l2sudamerica-*.desktop ~/.local/share/applications/
+cp -f config/l2suda-*.desktop ~/.local/share/applications/
 
 # Arrancar
-./scripts/l2_ctl.sh run l2sudamerica-optimized
+./scripts/l2_ctl.sh run l2suda-optimizado
 ```
 
 ---

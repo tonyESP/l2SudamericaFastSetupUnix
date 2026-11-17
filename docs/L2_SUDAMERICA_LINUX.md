@@ -9,11 +9,11 @@ Se mantienen 3 perfiles declarativos en [`config/servers.json`](../config/server
 1. **`l2sudamerica-interlude` (Fallback Seguro / WineD3D)**:
    - Base limpia de Interlude + sincronización oficial de `updater.ini`.
    - Parche [`tools/patches/D3DDrv.dll.noagp`](../tools/patches/D3DDrv.dll.noagp) cuando aplica sobre `system/D3DDrv.dll` para suprimir el modal bloqueante de AGP desactivado.
-2. **`l2sudamerica-optimized` (Perfil Diario — Remaster Extreme)**:
+2. **`l2suda-optimizado` (Perfil Diario — Remaster Extreme)**:
    - DXVK 32-bit (`d3d9.dll`, `dxgi.dll`, GPL `Auto`, `numCompilerThreads = 4`, `maxFrameRate = 60`, `presentInterval = 0`, `maxFrameLatency = 1`, `latencySleep = True`, `allowFse = False`, `deviceLossOnFocusLoss = False`, `samplerAnisotropy = 16`, `samplerLodBias = -0.25`).
    - `vkBasalt` 32-bit en swapchain Vulkan (`effects = smaa:tonemap:vibrance:curves:cas`, `Gamma = 0.96`, `Exposure = 0.04`, `Vibrance = 0.34`, `Contrast = 0.32`, `casSharpness = 0.45`, toggle en vivo **`Home`**).
    - `Option.ini`: `Gamma=1.000000`, `PostProc=0`, `GPUAnimation=False`, `AntiAliasing=0`, `L2WaterEffect.EffectType=2`, `[ClippingRange]` ampliado (`Terrain=10`, `Actor=8`, `StaticMesh=8`, `StaticMeshLod=8`, `Pawn=6`).
-3. **`l2sudamerica-siege` (Perfil Asedio / Mass PvP Ultra-FPS)**:
+3. **`l2suda-asedio` (Perfil Asedio / Mass PvP Ultra-FPS)**:
    - DXVK puro (`vkbasalt: false`, `samplerAnisotropy = 4`, `samplerLodBias = 0.0`).
    - `Option.ini` optimizado para eliminar el cuello de botella de animación/UI en CPU (`ModelDetail=1`, `SkipAnim=1`, `PawnShadow=False`, `RenderDeco=False`, `WeatherEffect=0`, `RenderActorLimited=2`, `L2WaterEffect.IsUseEffect=False`, `Pawn=3.0`, música/voz `.ogg` a `0.0`, y sin textos flotantes `HP+/MP+/CP+/EXP+`).
 
@@ -45,7 +45,7 @@ Se mantienen 3 perfiles declarativos en [`config/servers.json`](../config/server
 ## 3. Dual-Box, Ergonomía e Instalador Reproducible
 
 - **Pinning de CPU y Dual-Box**: 1.ª instancia fijada a núcleos físicos primarios (`0..7`), 2.ª instancia a hilos SMT (`8..15`), puerto de auth relay auto-incrementado, omisión de `ram_prewarm` redundante y **silenciado automático de audio** en la 2.ª ventana (`winepulse.drv=d;winealsa.drv=d`).
-- **Sincronización de UI/Barras/Crests**: `l2_ctl.sh` sincroniza bidireccionalmente con `cp -pu` `WindowsInfo.ini`, `iwo/*` y `crest/*` entre `l2sudamerica-optimized` y `l2sudamerica-siege`.
+- **Sincronización de UI/Barras/Crests**: `l2_ctl.sh` sincroniza bidireccionalmente con `cp -pu` `WindowsInfo.ini`, `iwo/*` y `crest/*` entre `l2suda-optimizado` y `l2suda-asedio`.
 - **Ratón lineal 1:1**: `scripts/provision_prefix.sh` desactiva aceleración (`MouseSpeed=0`, `MouseThreshold1=0`, `MouseThreshold2=0` en `user.reg`).
 - **Lanzadores e Icono**: icono extraído de `L2.exe` en [`config/l2-icon.png`](../config/l2-icon.png) y accesos `.desktop` en `config/` para diario y asedios.
 - **Plantillas Git**: [`config/dxvk.conf.template`](../config/dxvk.conf.template), [`config/dxvk.siege.conf.template`](../config/dxvk.siege.conf.template), [`config/Option.optimized.ini.template`](../config/Option.optimized.ini.template), [`config/Option.siege.ini.template`](../config/Option.siege.ini.template) y [`config/vkBasalt.conf.template`](../config/vkBasalt.conf.template), inyectadas dinámicamente con [`scripts/apply_tuning.sh`](../scripts/apply_tuning.sh).
@@ -57,7 +57,7 @@ Se mantienen 3 perfiles declarativos en [`config/servers.json`](../config/server
 python3 -m unittest discover -s tests -p "test_*.py" -v
 
 # Lanzar L2 Sudamérica (Diario Remaster / Asedio / Fallback)
-./scripts/l2_ctl.sh run l2sudamerica-optimized
-./scripts/l2_ctl.sh run l2sudamerica-siege
+./scripts/l2_ctl.sh run l2suda-optimizado
+./scripts/l2_ctl.sh run l2suda-asedio
 ./scripts/l2_ctl.sh run l2sudamerica-interlude
 ```
