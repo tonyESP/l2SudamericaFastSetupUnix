@@ -1,39 +1,63 @@
 # L2 Sudamérica (Interlude) en Linux — Informe de Ingeniería
 
-Este documento registra el diagnóstico completo, los parches aplicados y la arquitectura final que permite ejecutar **L2 Sudamérica (Interlude x10)** de forma estable bajo Linux/Wine desde [`scripts/l2_ctl.sh`](../scripts/l2_ctl.sh).
+Este documento registra el diagnóstico completo, las optimizaciones gráficas, de red y dual-box, y la arquitectura final que ejecuta **L2 Sudamérica (Interlude x10)** de forma reproducible bajo Linux/Wine desde [`scripts/l2_ctl.sh`](../scripts/l2_ctl.sh).
 
-## 1. Cadena de montaje del cliente (`clients/l2sudamerica-interlude`)
+## 1. Perfiles de Cliente y Cadena de Montaje
 
-1. **Cliente base estable (`Interlude.7z`)**:
-   - Extraída la base limpia `downloads/Interlude.7z` (sin los paquetes pesados de Interface 3.0, que provocaban congelamiento al entrar en cuevas bajo WineD3D).
-2. **Sincronización oficial `updater.ini`**:
-   - Descargados y verificados por MD5 los 119 archivos de `http://l2updates.com/sudamerica/updater/` usando resolución case-insensitive en `ext4` para sobrescribir correctamente `engine.dll`, `npcgrp.dat`, `lineagemonsterstex.utx`, `lineagemonsterstex2.utx`, `l2.ini`, `L2.exe` y el contenido custom (`animations/*SudAmerica*.ukx`, `system/L2S*.u`, `maps/`, etc.).
-3. **Limpieza y parche gráfico (`D3DDrv.dll.noagp`)**:
-   - Eliminado `system/d3d9.dll` (`d3d9_R21B.dll`) por incompatibilidad con Wine/DXVK.
-   - Aplicado [`tools/patches/D3DDrv.dll.noagp`](../tools/patches/D3DDrv.dll.noagp) sobre `system/D3DDrv.dll` (respaldo en `D3DDrv.dll.orig`) para suprimir el modal bloqueante de AGP desactivado (`test DWORD PTR [ebx+0x41c4], 0x1000` + `MessageBoxW`).
-   - Inyectado `UseAGP=False` en `system/Option.ini` y `system/dxvk.conf` mediante `scripts/apply_tuning.sh`.
+Se mantienen 3 perfiles declarativos en [`config/servers.json`](../config/servers.json) y [`config/downloads.json`](../config/downloads.json):
 
-## 2. Solución al bloqueo de Login (`WSAAsyncSelect` + Anti-DDoS)
+1. **`l2sudamerica-interlude` (Fallback Seguro / WineD3D)**:
+   - Base limpia de Interlude + sincronización oficial de `updater.ini`.
+   - Parche [`tools/patches/D3DDrv.dll.noagp`](../tools/patches/D3DDrv.dll.noagp) cuando aplica sobre `system/D3DDrv.dll` para suprimir el modal bloqueante de AGP desactivado.
+2. **`l2sudamerica-optimized` (Perfil Diario — Remaster Extreme)**:
+   - DXVK 32-bit (`d3d9.dll`, `dxgi.dll`, GPL `Auto`, `numCompilerThreads = 4`, `maxFrameRate = 60`, `presentInterval = 0`, `maxFrameLatency = 1`, `latencySleep = True`, `allowFse = False`, `deviceLossOnFocusLoss = False`, `samplerAnisotropy = 16`, `samplerLodBias = -0.25`).
+   - `vkBasalt` 32-bit en swapchain Vulkan (`effects = smaa:tonemap:vibrance:curves:cas`, `Gamma = 0.96`, `Exposure = 0.04`, `Vibrance = 0.34`, `Contrast = 0.32`, `casSharpness = 0.45`, toggle en vivo **`Home`**).
+   - `Option.ini`: `Gamma=1.000000`, `PostProc=0`, `GPUAnimation=False`, `AntiAliasing=0`, `L2WaterEffect.EffectType=2`, `[ClippingRange]` ampliado (`Terrain=10`, `Actor=8`, `StaticMesh=8`, `StaticMeshLod=8`, `Pawn=6`).
+3. **`l2sudamerica-siege` (Perfil Asedio / Mass PvP Ultra-FPS)**:
+   - DXVK puro (`vkbasalt: false`, `samplerAnisotropy = 4`, `samplerLodBias = 0.0`).
+   - `Option.ini` optimizado para eliminar el cuello de botella de animación/UI en CPU (`ModelDetail=1`, `SkipAnim=1`, `PawnShadow=False`, `RenderDeco=False`, `WeatherEffect=0`, `RenderActorLimited=2`, `L2WaterEffect.IsUseEffect=False`, `Pawn=3.0`, música/voz `.ogg` a `0.0`, y sin textos flotantes `HP+/MP+/CP+/EXP+`).
 
-### Diagnóstico
-Mediante `WINEDEBUG=+winsock` y trazado `LD_PRELOAD` se comprobó que:
-- El AuthServer `l2.lineage2sudamerica.com` (`45.235.99.29:2106`) tarda ~1.28 s en devolver el TCP `SYN-ACK`.
-- `L2.exe` registra `WSAAsyncSelect(0x507, FD_CONNECT)`, ejecuta `connect()` (`EINPROGRESS`) y **48 ms después** sobrescribe el evento con `WSAAsyncSelect(0x508, FD_READ|FD_OOB|FD_CLOSE)`.
-- Al completarse el `SYN-ACK` 1.2 s más tarde, Wine no entrega `FD_READ` y `L2.exe` nunca ejecuta `recv()`.
+### Hallazgos Críticos de Estabilidad (Verificados)
+- `PostProc=3` (HDR nativo UE2.5) provoca GPF en `FD3DRenderInterface::SetPixelShaderConstant <- UHDREffect::PostRender`.
+- `GPUAnimation=True` provoca crashes al cambiar de zona/ciudad.
+- `DisplayDepth.fx` con `depthCapture=on` confirmó buffer de profundidad vacío antes de presentar (`purple/white` sólido), descartando efectos dependientes de profundidad (MXAO).
+- `FakeHDR.fx` + `casSharpness=0.72` + `LOD bias -0.5` + `deband` posterior generan trama/moiré sobre DXT 2006.
+- **`l2_ctl.sh` Crash-Guard**: antes de cada lanzamiento fuerza `UseAGP=False`, `GPUAnimation=False`, `PostProc=0` y `StartupFullScreen=False` preservando saltos CRLF en `Option.ini`.
 
-### Implementación
-- **Shim C (`LD_PRELOAD`)**: [`tools/shims/l2_auth_redir.c`](../tools/shims/l2_auth_redir.c) -> `tools/shims/l2_auth_redir.so`. Intercepta `connect()` al puerto `L2_AUTH_TARGET_PORT` (2106) y lo redirige a `127.0.0.1:L2_AUTH_PROXY_PORT` (21060) preservando el flujo asíncrono `EINPROGRESS` (<1 ms).
-- **Relay TCP en Python**: [`scripts/l2_auth_proxy.py`](../scripts/l2_auth_proxy.py). Acepta conexiones locales y retransmite de forma transparente hacia `l2.lineage2sudamerica.com:2106`.
-- **Orquestación declarativa**:
-  - [`config/servers.json`](../config/servers.json) declara `executable: system/L2.exe`, `runner: wine-11.22-staging-amd64` y `auth_proxy`.
-  - [`scripts/l2_ctl.sh`](../scripts/l2_ctl.sh) levanta el relay automáticamente antes de ejecutar Wine y lo detiene al cerrar el juego mediante `trap cleanup_run EXIT`.
+---
 
-## 3. Ejecución y tests
+## 2. Solución al Bloqueo de Login (`WSAAsyncSelect`) y Red Transatlántica
+
+### Diagnóstico de Login y Latencia Real (`45.235.99.29`)
+- `l2.lineage2sudamerica.com` (`45.235.99.29`, Argentina) tiene un suelo físico (`minrtt` BBR medido en vivo con `ss -tin`) de **~270.5 ms** y un SYN-proxy anti-DDoS en el puerto `2106`.
+- Wine sobrescribía `WSAAsyncSelect(FD_CONNECT)` con `FD_READ` antes de recibir el `SYN-ACK`, bloqueando el login.
+- Además, las capturas en vivo sobre el puerto `7777` mostraron **`ato:40`** (Delayed ACK de Linux de hasta 40 ms), que penalizaba el encadenado rápido de paquetes de *target* (`Action` → `MyTargetSelected`) y *skills*.
+
+### Implementación Por Socket (`LD_PRELOAD` + Proxy)
+- **Shim C 32/64-bit (`tools/shims/l2_auth_redir.c`)**:
+  - Redirige puerto `2106` a `127.0.0.1:L2_AUTH_PROXY_PORT` (`21060`, `21061`... en dual-box).
+  - Por cada socket `AF_INET` (preservando `errno` de `EINPROGRESS` y sin tocar `sysctl` globales): aplica `TCP_NODELAY=1` (blindado en `setsockopt()`), `TCP_THIN_LINEAR_TIMEOUTS=1`, `IP_TOS=0xb8` (DSCP EF / Wi-Fi WMM Voz `AC_VO`) y rastrea hasta 8 FDs IPv4 en `g_ipv4_fds` para re-armar **`TCP_QUICKACK=1`** tras cada `recv`/`recvfrom`/`recvmsg` (ignorando sockets IPC de `wineserver`).
+- **Relay TCP (`scripts/l2_auth_proxy.py`)**: aplica los mismos flags por socket en ambos extremos (`_tune_tcp_socket` + `TCP_QUICKACK` continuo).
+- **Telemetría persistente**: `l2_ctl.sh` muestrea cada 30 s `ss -tin state established '( dport = :7777 )'` hacia `net_telemetry.log` (recortado a 200 líneas al salir).
+
+---
+
+## 3. Dual-Box, Ergonomía e Instalador Reproducible
+
+- **Pinning de CPU y Dual-Box**: 1.ª instancia fijada a núcleos físicos primarios (`0..7`), 2.ª instancia a hilos SMT (`8..15`), puerto de auth relay auto-incrementado, omisión de `ram_prewarm` redundante y **silenciado automático de audio** en la 2.ª ventana (`winepulse.drv=d;winealsa.drv=d`).
+- **Sincronización de UI/Barras/Crests**: `l2_ctl.sh` sincroniza bidireccionalmente con `cp -pu` `WindowsInfo.ini`, `iwo/*` y `crest/*` entre `l2sudamerica-optimized` y `l2sudamerica-siege`.
+- **Ratón lineal 1:1**: `scripts/provision_prefix.sh` desactiva aceleración (`MouseSpeed=0`, `MouseThreshold1=0`, `MouseThreshold2=0` en `user.reg`).
+- **Lanzadores e Icono**: icono extraído de `L2.exe` en [`config/l2-icon.png`](../config/l2-icon.png) y accesos `.desktop` en `config/` para diario y asedios.
+- **Plantillas Git**: [`config/dxvk.conf.template`](../config/dxvk.conf.template), [`config/dxvk.siege.conf.template`](../config/dxvk.siege.conf.template), [`config/Option.optimized.ini.template`](../config/Option.optimized.ini.template), [`config/Option.siege.ini.template`](../config/Option.siege.ini.template) y [`config/vkBasalt.conf.template`](../config/vkBasalt.conf.template), inyectadas dinámicamente con [`scripts/apply_tuning.sh`](../scripts/apply_tuning.sh).
+
+## 4. Ejecución y Verificación
 
 ```bash
-# Ejecutar tests automatizados (32/32)
+# Ejecutar tests automatizados (35/35)
 python3 -m unittest discover -s tests -p "test_*.py" -v
 
-# Lanzar L2 Sudamérica (Interface 3.0 + Wine 11.22-staging + Auth Relay)
+# Lanzar L2 Sudamérica (Diario Remaster / Asedio / Fallback)
+./scripts/l2_ctl.sh run l2sudamerica-optimized
+./scripts/l2_ctl.sh run l2sudamerica-siege
 ./scripts/l2_ctl.sh run l2sudamerica-interlude
 ```

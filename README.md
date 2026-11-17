@@ -1,36 +1,121 @@
-# Lineage 2 - Linux Gaming Setup (/mnt/disk4u/L2)
+# L2 Linux Core — Lineage 2 Interlude (Sudamérica) Reproducible Setup
 
-Este directorio está preparado para alojar el cliente, prefijo de Wine y herramientas necesarias para jugar a **Lineage 2 en Linux** sin problemas de compatibilidad ni anticheats intrusivos.
-
----
-
-## 📁 Estructura de Directorios
-
-- `clients/`: Directorio donde se descomprime el cliente del juego (ej: `/mnt/disk4u/L2/clients/elmorelab_interlude`).
-- `prefixes/`: Prefijo(s) de Wine de 32/64 bits independientes (ej: `/mnt/disk4u/L2/prefixes/l2_interlude`).
-- `tools/`: Runners (Wine-GE, Proton-GE) y scripts de arranque optimizados.
-- `downloads/`: Archivos comprimidos, parches y paquetes de instalación.
+Repositorio de ingeniería para aprovisionar, optimizar y ejecutar **Lineage 2 Interlude (C6)** con acabado **Remaster 2026**, soporte nativo para **Dual-Box** (2 cuentas simultáneas en ventana) y perfil dedicado **Ultra-FPS para Asedios**, de forma 100% *ban-safe* (sin modificar `.utx`, `l2.ini`, `L2.exe` ni `CliExt.dll`).
 
 ---
 
-## ⚔️ Servidor Recomendado: ElmoreLab (Interlude - Erica x3)
+## 1. Los 3 Perfiles Disponibles (`config/servers.json`)
 
-- **Crónica**: Interlude (C6).
-- **Rates**: x3.
-- **Filosofía**: Cero Pay-to-Win, progresión clásica por fases, anti-bot en servidor (sin drivers de kernel).
-- **Compatibilidad Linux**: 100% nativa con Wine-GE / Proton-GE + DXVK.
-- **Web oficial**: https://elmorelab.com
+| Perfil (`server_id`) | Uso recomendado | Pila gráfica y ajustes clave |
+|---|---|---|
+| `l2sudamerica-interlude` | Fallback seguro / compatibilidad | WineD3D clásico (sin DXVK ni vkBasalt) |
+| `l2sudamerica-optimized` | **Juego diario ("Bonito")** | DXVK (`AF 16x`, `LOD -0.25`) + `vkBasalt` (`smaa:tonemap:vibrance:curves:cas`) + `Pawn=6.0`, `StaticMesh=8.0` |
+| `l2sudamerica-siege` | **Asedios y Mass PvP (0 bajones)** | DXVK puro (`vkbasalt=false`, `AF 4x`, `LOD 0.0`) + CPU baja carga (`Pawn=3.0`, `SkipAnim=1`, `ModelDetail=1`, sin sombras de PJ/hierba/agua/música `.ogg`/números de cura) |
+
+Todos los perfiles arrancan con **lanzador blindado** (`scripts/l2_ctl.sh`): antes de abrir `L2.exe` fuerza automáticamente `UseAGP=False`, `GPUAnimation=False`, `PostProc=0` (evita GPF en `UHDREffect::PostRender` y `GetVertexShader`) y `StartupFullScreen=False` (evita pantallazos negros por FSE).
 
 ---
 
-## ⚙️ Dependencias Clave de Winetricks para el Prefijo
+## 2. Arquitectura y Optimizaciones Implementadas
 
-Para evitar crasheos en la interfaz o fuentes corruptas:
+### A. Gráficos externos (DXVK + vkBasalt 32-bit + UE2.5)
+- **DXVK (`config/dxvk.conf.template` / `dxvk.siege.conf.template`)**: `d3d9.maxFrameRate = 60`, `presentInterval = 0`, `maxFrameLatency = 1`, `latencySleep = True`, `allowFse = False`, `deviceLossOnFocusLoss = False`, `enableGraphicsPipelineLibrary = Auto` y `numCompilerThreads = 4`.
+- **vkBasalt (`config/vkBasalt.conf.template`)**: cadena `smaa:tonemap:vibrance:curves:cas` (sin `deband` ni `FakeHDR` para no crear trama sobre texturas DXT de 2006), con `Gamma = 0.96`, `Exposure = 0.04`, `Vibrance = 0.34`, `Contrast = 0.32`, `casSharpness = 0.45` (tecla **`Home`** para activar/desactivar en vivo).
+- **MangoHud 32-bit**: `fps,fps_metrics=0.01,frametime,frame_timing=1,cpu_stats,gpu_stats` (tecla **`Shift_R+F12`**).
+
+### B. Ergonomía Dual-Box (2 cuentas simultáneas en ventana)
+Al lanzar una segunda ventana con `./scripts/l2_ctl.sh run <perfil>`, `l2_ctl.sh` detecta la instancia activa (`pgrep`) y automáticamente:
+1. **Reparte hilos de CPU**: 1.ª instancia en núcleos físicos primarios (`0..7`), 2.ª instancia en hilos SMT (`8..15`).
+2. **Aísla el Auth Relay**: si el puerto `21060` está ocupado, abre `21061`, `21062`... para que cerrar una cuenta no desconecte la otra.
+3. **Silencia el audio de la 2.ª ventana**: desactiva `winepulse.drv` y `winealsa.drv` (`WINEDLLOVERRIDES`) en la 2.ª cuenta para ahorrar CPU y evitar audio duplicado.
+4. **Omite `ram_prewarm` redundante** si ya hay una instancia leyendo los paquetes.
+5. **Sincroniza Interfaz, Barras y Emblemas**: copia bidireccionalmente con `cp -pu` los archivos más recientes de `system/WindowsInfo.ini`, `iwo/*` y `crest/*` entre `l2sudamerica-optimized` y `l2sudamerica-siege`, manteniendo separados `Option.ini` y `dxvk.conf`.
+6. **Ratón lineal 1:1**: `scripts/provision_prefix.sh` desactiva la aceleración en `user.reg` (`MouseSpeed=0`, `MouseThreshold1=0`, `MouseThreshold2=0`) para evitar giros bruscos de cámara.
+
+### C. Red transatlántica de baja latencia por socket (sin `sudo` / sin tocar el sistema)
+- **`scripts/l2_auth_proxy.py` + `tools/shims/l2_auth_redir.c`** (32 y 64 bits vía `$LIB`):
+  - Resuelve el bloqueo de login en Wine (`WSAAsyncSelect` + SYN-proxy anti-DDoS).
+  - Por cada socket `AF_INET` de L2 (sin tocar `sysctl` globales): aplica `TCP_NODELAY` blindado en `setsockopt()`, **`TCP_QUICKACK` continuo** re-armado en `recv`/`recvfrom`/`recvmsg` (elimina el *Delayed ACK* de 40 ms), `TCP_THIN_LINEAR_TIMEOUTS` (retransmisión rápida sin espera exponencial) e **`IP_TOS = 0xb8`** (DSCP EF / prioridad Wi-Fi WMM Voz `AC_VO`).
+  - Muestreo automático cada 30 s en `net_telemetry.log` (`ss -tin` puerto `:7777`, recortado a 200 líneas al salir).
+
+---
+
+## 3. Reproducibilidad tras Formatear o Clonar en Linux
+
+> **Nota sobre `.gitignore`**: El repositorio en GitHub guarda toda la lógica, plantillas, shims C, tests y lanzadores (`scripts/`, `config/`, `tools/shims/l2_auth_redir.*`, `docs/`, `tests/`), pero **excluye** por tamaño/credenciales `clients/`, `prefixes/`, `downloads/`, `tools/runners/`, `tools/dxvk_32/`, `tools/vkbasalt/`, `tools/mangohud/`, `tools/dxvk_cache/`, `.env`, `*.local.json` y `*.log`.
+
+### Paso 1: Dependencias del sistema (Ubuntu / Linux Mint / Debian)
 ```bash
-winetricks corefonts tahoma d3dx9 vcrun2008 msxml4
+sudo dpkg --add-architecture i386
+sudo apt update
+sudo apt install -y git curl p7zip-full unrar python3 python3-pil \
+  gcc gcc-multilib libc6-dev-i386 gamemode winetricks iproute2
 ```
 
-- `tahoma / corefonts`: Evita textos en blanco o cuadros en la UI.
-- `d3dx9`: Librerías nativas DirectX 9 traducidas por DXVK.
-- `vcrun2008`: Runtime de C++ para el motor de L2.
-- `msxml4`: Evita crasheos al abrir inventario, mapa o ventanas de habilidades (lector XML).
+### Paso 2: Clonar, compilar shims y verificar el entorno
+```bash
+git clone <TU_REPO_GITHUB> L2 && cd L2
+
+# Recompilar shims 64-bit y 32-bit
+mkdir -p tools/shims/lib/x86_64-linux-gnu tools/shims/lib/i386-linux-gnu
+gcc -shared -fPIC -O2 -Wall -Wextra tools/shims/l2_auth_redir.c -o tools/shims/lib/x86_64-linux-gnu/l2_auth_redir.so -ldl
+gcc -m32 -shared -fPIC -O2 -Wall -Wextra tools/shims/l2_auth_redir.c -o tools/shims/lib/i386-linux-gnu/l2_auth_redir.so -ldl
+cp -f tools/shims/lib/x86_64-linux-gnu/l2_auth_redir.so tools/shims/l2_auth_redir.so
+
+# Verificar hardware, Vulkan y tests automatizados
+./scripts/l2_ctl.sh doctor
+python3 -m unittest discover -s tests -p "test_*.py" -v
+```
+
+### Paso 3: Colocar cliente y herramientas binarias
+1. **Cliente**: descomprime tu cliente L2 Sudamérica dentro de `clients/l2sudamerica-optimized/` (y opcionalmente una copia en `clients/l2sudamerica-siege/` y `clients/l2sudamerica-interlude/`). Elimina `system/d3d9.dll` original si trae `d3d9_R21B.dll` para que lo gestione DXVK/Wine.
+2. **Wine Runner**: instala `wine-11.22-staging-amd64` en `tools/runners/wine-11.22-staging-amd64/` (o usa el `wine` del sistema).
+3. **DXVK 32-bit + vkBasalt + MangoHud**:
+   - Copia `d3d9.dll` y `dxgi.dll` (32-bit de DXVK) en `tools/dxvk_32/`.
+   - Compila `libvkbasalt.so` (32-bit) en `tools/vkbasalt/install/lib32/`, su `layer.d` en `tools/vkbasalt/layer.d/` y coloca `reshade-shaders` + `sweetfx` en `tools/vkbasalt/`.
+   - Opcional: capa 32-bit de MangoHud en `tools/mangohud/layer.d/`.
+
+### Paso 4: Aprovisionar prefijos, aplicar plantillas y lanzar
+```bash
+# Crear prefijos Wine 32-bit (winetricks + ratón lineal 1:1)
+./scripts/l2_ctl.sh setup l2sudamerica-optimized
+./scripts/l2_ctl.sh setup l2sudamerica-siege
+
+# Inyectar dxvk.conf, Option.ini y vkBasalt.conf adaptados a tu ruta
+./scripts/apply_tuning.sh l2sudamerica-optimized
+./scripts/apply_tuning.sh l2sudamerica-siege
+
+# Instalar lanzadores en el menú de aplicaciones (actualiza la ruta si no clonas en /mnt/disk4u/L2)
+cp -f config/l2sudamerica-*.desktop ~/.local/share/applications/
+
+# Arrancar
+./scripts/l2_ctl.sh run l2sudamerica-optimized
+```
+
+---
+
+## 4. Guía Rápida para un Colega en Windows 10/11
+
+En Windows no hacen falta `l2_ctl.sh`, Wine, `l2_auth_redir.so` ni `l2_auth_proxy.py`, pero tu colega puede aprovechar **directamente** todo el tuning gráfico y de asedios:
+
+1. **Perfil Diario vs Perfil Asedio (`Option.ini`)**:
+   - **Juego normal**: copia [`config/Option.optimized.ini.template`](config/Option.optimized.ini.template) como `system\Option.ini` (distancia ampliada `Pawn=6.0`, `StaticMesh=8.0`, `L2WaterEffect` alto, `Gamma=1.0`, `PostProc=0`). Haz copia previa de su `Option.ini` si quiere conservar teclas/resolución.
+   - **Asedios / Mass PvP (máximos FPS)**: copia [`config/Option.siege.ini.template`](config/Option.siege.ini.template) como `system\Option.ini` (quita sombras de PJ, vegetación, reflejos de agua, `SkipAnim=1`, `ModelDetail=1` y números flotantes de curas). *(Nota: edita `GamePlayViewportX/Y` en `[Video]` si su monitor no es `1920x1080`)*.
+2. **Opcional — DXVK en Windows (mejor frame-pacing en UE2.5)**:
+   - Descarga DXVK (`x32\d3d9.dll` y `dxgi.dll`) y ponlos junto a `L2.exe` en `system\` (verificando antes que el anticheat/updater del servidor no sobrescriba `d3d9.dll`), acompañado de [`config/dxvk.conf.template`](config/dxvk.conf.template) renombrado a `dxvk.conf` (o [`config/dxvk.siege.conf.template`](config/dxvk.siege.conf.template) en asedios).
+3. **Opcional — ReShade con nuestro perfil Remaster**:
+   - Instala ReShade para **Direct3D 9** sobre `L2.exe` y replica los mismos efectos y valores de [`config/vkBasalt.conf.template`](config/vkBasalt.conf.template):
+     - Activa en este orden: **SMAA** → **Tonemap** (`Gamma=0.96`, `Exposure=0.04`, `Saturation=0.08`, `Defog=0.0`) → **Vibrance** (`0.34`) → **Curves** (`Contrast=0.32`) → **CAS** (`Sharpness=0.45`).
+     - Evita `FakeHDR` y `Deband` para no generar trama sobre las texturas de 2006.
+
+---
+
+## 5. Documentación Relacionada y Tests
+
+- Informe técnico detallado de diagnóstico: [`docs/L2_SUDAMERICA_LINUX.md`](docs/L2_SUDAMERICA_LINUX.md)
+- Arquitectura y reglas del proyecto: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`AGENTS.md`](AGENTS.md)
+- Guía de tuning y troubleshooting: [`.agents/skills/l2-graphics-tuning/SKILL.md`](.agents/skills/l2-graphics-tuning/SKILL.md)
+- Suite de tests (`unittest`):
+  ```bash
+  python3 -m unittest discover -s tests -p "test_*.py" -v
+  ```

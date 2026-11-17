@@ -47,6 +47,32 @@ class TestTuningTemplates(unittest.TestCase):
             self.assertIn(f"Exec=/mnt/disk4u/L2/scripts/l2_ctl.sh run {profile}", d_content)
             self.assertIn(f"Icon={icon_path}", d_content)
 
+    def test_reproducible_profile_templates_exist(self):
+        checks = {
+            "vkBasalt.conf.template": [
+                "effects = smaa:tonemap:vibrance:curves:cas",
+                "casSharpness = 0.45",
+            ],
+            "dxvk.siege.conf.template": [
+                "d3d9.samplerAnisotropy = 4",
+            ],
+            "Option.optimized.ini.template": [
+                "Pawn=6.000000",
+                "PostProc=0",
+            ],
+            "Option.siege.ini.template": [
+                "PawnShadow=False",
+                "SkipAnim=1",
+            ],
+        }
+        for filename, snippets in checks.items():
+            path = os.path.join(PROJECT_ROOT, "config", filename)
+            self.assertTrue(os.path.isfile(path), f"Missing template: {path}")
+            with open(path, "r", encoding="utf-8", errors="ignore") as f:
+                content = f.read()
+            for s in snippets:
+                self.assertIn(s, content, f"Missing '{s}' in {filename}")
+
 
 if __name__ == "__main__":
     unittest.main()

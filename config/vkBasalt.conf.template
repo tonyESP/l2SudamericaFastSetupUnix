@@ -1,0 +1,33 @@
+# vkBasalt Remaster Extreme Profile for Lineage 2 Interlude (l2sudamerica-lab / optimized)
+# Toggle all effects on/off live in-game with Home key
+effects = smaa:tonemap:vibrance:curves:cas
+
+reshadeTexturePath = "/mnt/disk4u/L2/tools/vkbasalt/reshade-shaders/Textures"
+reshadeIncludePath = "/mnt/disk4u/L2/tools/vkbasalt/reshade-shaders/Shaders"
+depthCapture = off
+
+# ReShade / SweetFX .fx shaders
+tonemap = /mnt/disk4u/L2/tools/vkbasalt/sweetfx/Shaders/SweetFX/Tonemap.fx
+vibrance = /mnt/disk4u/L2/tools/vkbasalt/reshade-shaders/Shaders/Vibrance.fx
+curves = /mnt/disk4u/L2/tools/vkbasalt/reshade-shaders/Shaders/Curves.fx
+
+# Tonemap: subtle lift paired with neutral engine Gamma=1.000000 (no double gamma crush)
+Gamma = 0.96
+Exposure = 0.04
+Saturation = 0.08
+Defog = 0.0
+
+# Balanced color & contrast
+Vibrance = 0.34
+Contrast = 0.32
+
+# Built-in CAS + SMAA (0.45 avoids texel grid/trama on 2006 textures)
+casSharpness = 0.45
+smaaEdgeDetection = luma
+smaaThreshold = 0.05
+smaaMaxSearchSteps = 32
+smaaMaxSearchStepsDiag = 16
+smaaCornerRounding = 25
+
+toggleKey = Home
+enableOnLaunch = True

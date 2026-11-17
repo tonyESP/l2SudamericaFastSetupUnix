@@ -1,16 +1,31 @@
-# DXVK Configuration Template for Lineage 2 on NVIDIA Turing (T1200)
+# DXVK v3.10 Optimized Configuration for Lineage 2 Interlude (NVIDIA Turing + GPL)
 
-# Limit framerate to avoid unnecessary power consumption in static menus
-d3d9.maxFrameRate = 144
+# Match verified 60.06 Hz laptop panel to prevent thermal throttling and uneven pacing
+d3d9.maxFrameRate = 60
 
-# Force 16x Anisotropic Filtering for sharper terrain and building textures
+# Disable VSync presentation blocking in windowed/borderless mode
+d3d9.presentInterval = 0
+
+# Force 16x Anisotropic Filtering + sharper negative LOD bias for distant textures
 d3d9.samplerAnisotropy = 16
+d3d9.samplerLodBias = -0.25
+d3d9.clampNegativeLodBias = False
+d3d9.seamlessCubes = True
+d3d9.dpiAware = True
+d3d9.maxFrameLatency = 1
 
-# Defer surface creation to improve stability during Alt+Tab and window resize
+# Defer surface creation for clean Alt+Tab and window resize stability
 d3d9.deferSurfaceCreation = True
 
-# Enable asynchronous shader compilation pipeline (mitigates first-time cast stutters)
-dxvk.enableAsync = True
+# Allow full VRAM utilization without legacy 2006 memory cap
+d3d9.textureMemory = 0
 
-# State cache enablement
-dxvk.numCompilerThreads = 8
+# Reduce render-queue input latency and prevent focus-loss device resets
+dxvk.latencySleep = True
+dxvk.allowFse = False
+d3d9.deviceLossOnFocusLoss = False
+
+# Modern Graphics Pipeline Library (VK_EXT_graphics_pipeline_library)
+# Replaces legacy dxvk.enableAsync = True for stutter-free shader compilation
+dxvk.enableGraphicsPipelineLibrary = Auto
+dxvk.numCompilerThreads = 4

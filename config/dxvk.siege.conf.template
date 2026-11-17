@@ -1,0 +1,31 @@
+# DXVK v3.10 Optimized Configuration for Lineage 2 Interlude (NVIDIA Turing + GPL)
+
+# Match verified 60.06 Hz laptop panel to prevent thermal throttling and uneven pacing
+d3d9.maxFrameRate = 60
+
+# Disable VSync presentation blocking in windowed/borderless mode
+d3d9.presentInterval = 0
+
+# Siege / Mass PvP: 4x Anisotropic Filtering + neutral LOD bias for minimum VRAM/bandwidth spikes
+d3d9.samplerAnisotropy = 4
+d3d9.samplerLodBias = 0.0
+d3d9.clampNegativeLodBias = False
+d3d9.seamlessCubes = True
+d3d9.dpiAware = True
+d3d9.maxFrameLatency = 1
+
+# Defer surface creation for clean Alt+Tab and window resize stability
+d3d9.deferSurfaceCreation = True
+
+# Allow full VRAM utilization without legacy 2006 memory cap
+d3d9.textureMemory = 0
+
+# Reduce render-queue input latency and prevent focus-loss device resets
+dxvk.latencySleep = True
+dxvk.allowFse = False
+d3d9.deviceLossOnFocusLoss = False
+
+# Modern Graphics Pipeline Library (VK_EXT_graphics_pipeline_library)
+# Replaces legacy dxvk.enableAsync = True for stutter-free shader compilation
+dxvk.enableGraphicsPipelineLibrary = Auto
+dxvk.numCompilerThreads = 4

@@ -79,6 +79,12 @@ log_info "Instalando dependencias desatendidas: ${TRICKS[*]}..."
 
 "${WINESERVER}" -w
 
+# Disable Wine mouse acceleration for linear 1:1 camera rotation
+if [[ -f "${PREFIX_PATH}/user.reg" ]]; then
+    sed -i -E 's/^"MouseSpeed"=.*/"MouseSpeed"="0"/; s/^"MouseThreshold1"=.*/"MouseThreshold1"="0"/; s/^"MouseThreshold2"=.*/"MouseThreshold2"="0"/' "${PREFIX_PATH}/user.reg"
+    log_info "Aceleración de ratón desactivada en user.reg (giro 1:1)."
+fi
+
 # Copy DXVK config template if available
 if [[ -f "${L2_CONFIG_DIR}/dxvk.conf.template" ]]; then
     mkdir -p "${PREFIX_PATH}/drive_c"
