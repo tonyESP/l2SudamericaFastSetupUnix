@@ -74,6 +74,24 @@ class TestTuningTemplates(unittest.TestCase):
             for s in snippets:
                 self.assertIn(s, content, f"Missing '{s}' in {filename}")
 
+    def test_portability_and_active_dxvk_directives(self):
+        env_path = os.path.join(PROJECT_ROOT, "scripts", "env.sh")
+        with open(env_path, "r", encoding="utf-8") as f:
+            env_content = f.read()
+        self.assertNotIn('L2_PROJECT_ROOT="/mnt/disk4u/L2"', env_content)
+        self.assertNotIn("/home/floky", env_content)
+
+        apply_path = os.path.join(PROJECT_ROOT, "scripts", "apply_tuning.sh")
+        with open(apply_path, "r", encoding="utf-8") as f:
+            apply_content = f.read()
+        self.assertIn("--force", apply_content)
+
+        for tmpl in ("dxvk.conf.template", "dxvk.siege.conf.template"):
+            with open(os.path.join(PROJECT_ROOT, "config", tmpl), "r", encoding="utf-8") as f:
+                lines = [ln.strip() for ln in f if ln.strip() and not ln.lstrip().startswith("#")]
+            self.assertIn("dxvk.enableGraphicsPipelineLibrary = Auto", lines)
+            self.assertIn("dxvk.numCompilerThreads = 4", lines)
+
 
 if __name__ == "__main__":
     unittest.main()

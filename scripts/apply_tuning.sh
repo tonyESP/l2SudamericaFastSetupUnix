@@ -4,10 +4,17 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/env.sh"
 
-SERVER_ID="${1:-}"
+SERVER_ID=""
+FORCE_TUNING=0
+for arg in "$@"; do
+    case "${arg}" in
+        --force|-f) FORCE_TUNING=1 ;;
+        *) [[ -z "${SERVER_ID}" ]] && SERVER_ID="${arg}" ;;
+    esac
+done
 
 if [[ -z "${SERVER_ID}" ]]; then
-    log_error "Uso: $0 <server_id>"
+    log_error "Uso: $0 <server_id> [--force]"
     exit 1
 fi
 
@@ -37,22 +44,27 @@ esac
 cp "${DXVK_TEMPLATE}" "${CLIENT_SYSTEM_DIR}/dxvk.conf"
 log_success "dxvk.conf ($(basename "${DXVK_TEMPLATE}")) inyectado en ${CLIENT_SYSTEM_DIR}/dxvk.conf"
 
-# 2. Inyectar Option.ini (si no existe uno personalizado o forzar)
-if [[ ! -f "${CLIENT_SYSTEM_DIR}/Option.ini" ]]; then
+# 2. Inyectar Option.ini (nuevo o con --force respaldando el anterior)
+if [[ ! -f "${CLIENT_SYSTEM_DIR}/Option.ini" || "${FORCE_TUNING}" == "1" ]]; then
+    if [[ -f "${CLIENT_SYSTEM_DIR}/Option.ini" ]]; then
+        cp -p "${CLIENT_SYSTEM_DIR}/Option.ini" "${CLIENT_SYSTEM_DIR}/Option.ini.bak-pre-tuning"
+    fi
     cp "${OPT_TEMPLATE}" "${CLIENT_SYSTEM_DIR}/Option.ini"
     log_success "Option.ini ($(basename "${OPT_TEMPLATE}")) inyectado."
 else
-    log_info "Option.ini existente detectado; se mantiene para no sobrescribir keybindings."
+    log_info "Option.ini existente detectado; se mantiene para no sobrescribir keybindings (usa --force para reemplazar)."
     if ! grep -q "UseAGP" "${CLIENT_SYSTEM_DIR}/Option.ini"; then
-        sed -i '/\[Video\]/a UseAGP=False' "${CLIENT_SYSTEM_DIR}/Option.ini"
+        sed -i '/\[Video\]/a UseAGP=False\r' "${CLIENT_SYSTEM_DIR}/Option.ini"
         log_success "Directiva UseAGP=False inyectada en Option.ini existente."
     fi
 fi
 
-# 3. Provisionar vkBasalt.conf si existe tools/vkbasalt pero aún no hay config local
-if [[ -d "${L2_TOOLS_DIR}/vkbasalt" && ! -f "${L2_TOOLS_DIR}/vkbasalt/vkBasalt.conf" && -f "${L2_CONFIG_DIR}/vkBasalt.conf.template" ]]; then
-    sed "s|/mnt/disk4u/L2|${L2_PROJECT_ROOT}|g" "${L2_CONFIG_DIR}/vkBasalt.conf.template" > "${L2_TOOLS_DIR}/vkbasalt/vkBasalt.conf"
-    log_success "vkBasalt.conf generado desde plantilla en ${L2_TOOLS_DIR}/vkbasalt/vkBasalt.conf"
+# 3. Provisionar vkBasalt.conf si existe tools/vkbasalt (o falta / apunta a otra ruta)
+if [[ -d "${L2_TOOLS_DIR}/vkbasalt" && -f "${L2_CONFIG_DIR}/vkBasalt.conf.template" ]]; then
+    if [[ ! -f "${L2_TOOLS_DIR}/vkbasalt/vkBasalt.conf" || "${FORCE_TUNING}" == "1" ]] || ! grep -q "${L2_PROJECT_ROOT}/tools/vkbasalt" "${L2_TOOLS_DIR}/vkbasalt/vkBasalt.conf" 2>/dev/null; then
+        sed "s|/mnt/disk4u/L2|${L2_PROJECT_ROOT}|g" "${L2_CONFIG_DIR}/vkBasalt.conf.template" > "${L2_TOOLS_DIR}/vkbasalt/vkBasalt.conf"
+        log_success "vkBasalt.conf generado desde plantilla en ${L2_TOOLS_DIR}/vkbasalt/vkBasalt.conf"
+    fi
 fi
 
 log_success "Fine-tuning completado para ${SERVER_ID}."

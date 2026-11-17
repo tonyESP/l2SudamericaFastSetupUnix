@@ -81,12 +81,12 @@ python3 -m unittest discover -s tests -p "test_*.py" -v
 ./scripts/l2_ctl.sh setup l2suda-optimizado
 ./scripts/l2_ctl.sh setup l2suda-asedio
 
-# Inyectar dxvk.conf, Option.ini y vkBasalt.conf adaptados a tu ruta
-./scripts/apply_tuning.sh l2suda-optimizado
-./scripts/apply_tuning.sh l2suda-asedio
+# Inyectar dxvk.conf, Option.ini y vkBasalt.conf adaptados a tu ruta (--force aplica la plantilla aunque ya exista Option.ini)
+./scripts/apply_tuning.sh l2suda-optimizado --force
+./scripts/apply_tuning.sh l2suda-asedio --force
 
-# Instalar lanzadores en el menú de aplicaciones (actualiza la ruta si no clonas en /mnt/disk4u/L2)
-cp -f config/l2suda-*.desktop ~/.local/share/applications/
+# Instalar lanzadores en el menú de aplicaciones (adapta rutas automáticamente a tu carpeta)
+for f in config/l2suda-*.desktop; do sed "s|/mnt/disk4u/L2|$(pwd)|g" "$f" > ~/.local/share/applications/"$(basename "$f")"; done
 
 # Actualizar parches oficiales del servidor (sin pisar DXVK y copiando cambios a asedio)
 ./scripts/l2_ctl.sh update
@@ -106,8 +106,10 @@ En Windows no hacen falta `l2_ctl.sh`, Wine, `l2_auth_redir.so` ni `l2_auth_prox
    - **Asedios / Mass PvP (máximos FPS)**: copia [`config/Option.siege.ini.template`](config/Option.siege.ini.template) como `system\Option.ini` (quita sombras de PJ, vegetación, reflejos de agua, `SkipAnim=1`, `ModelDetail=1` y números flotantes de curas). *(Nota: edita `GamePlayViewportX/Y` en `[Video]` si su monitor no es `1920x1080`)*.
 2. **Opcional — DXVK en Windows (mejor frame-pacing en UE2.5)**:
    - Descarga DXVK (`x32\d3d9.dll` y `dxgi.dll`) y ponlos junto a `L2.exe` en `system\` (verificando antes que el anticheat/updater del servidor no sobrescriba `d3d9.dll`), acompañado de [`config/dxvk.conf.template`](config/dxvk.conf.template) renombrado a `dxvk.conf` (o [`config/dxvk.siege.conf.template`](config/dxvk.siege.conf.template) en asedios).
-3. **Opcional — ReShade con nuestro perfil Remaster**:
-   - Instala ReShade para **Direct3D 9** sobre `L2.exe` y replica los mismos efectos y valores de [`config/vkBasalt.conf.template`](config/vkBasalt.conf.template):
+3. **Opcional — ReShade en Windows**:
+   - > [!WARNING]
+     > **Evita colisión de `d3d9.dll`**: tanto DXVK (32-bit) como ReShade para Direct3D 9 generan un `d3d9.dll` en `system\`. Si usas **DXVK**, instala ReShade seleccionando **Vulkan** (no Direct3D 9) para que encadene sobre DXVK; si NO usas DXVK, instálalo como **Direct3D 9**.
+   - Replica los mismos efectos y valores de [`config/vkBasalt.conf.template`](config/vkBasalt.conf.template):
      - Activa en este orden: **SMAA** → **Tonemap** (`Gamma=0.96`, `Exposure=0.04`, `Saturation=0.08`, `Defog=0.0`) → **Vibrance** (`0.34`) → **Curves** (`Contrast=0.32`) → **CAS** (`Sharpness=0.45`).
      - Evita `FakeHDR` y `Deband` para no generar trama sobre las texturas de 2006.
 

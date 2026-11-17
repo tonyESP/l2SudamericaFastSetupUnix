@@ -3,7 +3,7 @@
 
 set -euo pipefail
 
-export L2_PROJECT_ROOT="/mnt/disk4u/L2"
+export L2_PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 export L2_CLIENTS_DIR="${L2_PROJECT_ROOT}/clients"
 export L2_PREFIXES_DIR="${L2_PROJECT_ROOT}/prefixes"
 export L2_TOOLS_DIR="${L2_PROJECT_ROOT}/tools"
@@ -21,7 +21,7 @@ fi
 
 # Display settings for X11 / Wayland
 export DISPLAY="${DISPLAY:-:0}"
-export XAUTHORITY="${XAUTHORITY:-${HOME:-/home/floky}/.Xauthority}"
+export XAUTHORITY="${XAUTHORITY:-${HOME:-/tmp}/.Xauthority}"
 
 # NVIDIA Prime Render Offload for Hybrid Intel/NVIDIA laptop setup
 export __NV_PRIME_RENDER_OFFLOAD=1

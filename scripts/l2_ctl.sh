@@ -168,6 +168,30 @@ print("1" if srv.get("vkbasalt") else "0")
     _L2_PREWARM_PID=""
     _L2_NETLOG_PID=""
     local _netlog_file="${L2_PROJECT_ROOT}/net_telemetry.log"
+    local _dualbox_dir="/tmp/l2_dualbox_${UID}"
+    mkdir -p "${_dualbox_dir}"
+    local _slot_pid_file=""
+    local _instance_slot=1
+    local _lock_fd
+
+    sync_ui_state() {
+        local peer_dir=""
+        if [[ "${s_id}" == "l2suda-optimizado" ]]; then
+            peer_dir="${L2_CLIENTS_DIR}/l2suda-asedio"
+        elif [[ "${s_id}" == "l2suda-asedio" ]]; then
+            peer_dir="${L2_CLIENTS_DIR}/l2suda-optimizado"
+        fi
+        if [[ -n "${peer_dir}" && -d "${peer_dir}" ]]; then
+            mkdir -p "${client_dir}/iwo" "${client_dir}/crest"
+            [[ -f "${peer_dir}/system/WindowsInfo.ini" ]] && cp -pu "${peer_dir}/system/WindowsInfo.ini" "${client_system_dir}/WindowsInfo.ini" 2>/dev/null || true
+            cp -pu "${peer_dir}/iwo/"* "${client_dir}/iwo/" 2>/dev/null || true
+            cp -pu "${peer_dir}/crest/"* "${client_dir}/crest/" 2>/dev/null || true
+            [[ -f "${client_system_dir}/WindowsInfo.ini" ]] && cp -pu "${client_system_dir}/WindowsInfo.ini" "${peer_dir}/system/WindowsInfo.ini" 2>/dev/null || true
+            cp -pu "${client_dir}/iwo/"* "${peer_dir}/iwo/" 2>/dev/null || true
+            cp -pu "${client_dir}/crest/"* "${peer_dir}/crest/" 2>/dev/null || true
+        fi
+    }
+
     cleanup_run() {
         for _pid in "${_L2_AUTH_PROXY_PID:-}" "${_L2_PREWARM_PID:-}" "${_L2_NETLOG_PID:-}"; do
             if [[ -n "${_pid}" ]] && kill -0 "${_pid}" 2>/dev/null; then
@@ -175,14 +199,83 @@ print("1" if srv.get("vkbasalt") else "0")
                 wait "${_pid}" 2>/dev/null || true
             fi
         done
+        sync_ui_state
+        if [[ -n "${_slot_pid_file:-}" && -f "${_slot_pid_file}" ]] && [[ "$(cat "${_slot_pid_file}" 2>/dev/null || true)" == "$$" ]]; then
+            rm -f "${_slot_pid_file}"
+        fi
         if [[ -f "${_netlog_file}" ]]; then
-            tail -n 200 "${_netlog_file}" > "${_netlog_file}.tmp" 2>/dev/null && mv -f "${_netlog_file}.tmp" "${_netlog_file}" || true
+            (
+                if command -v flock >/dev/null 2>&1; then
+                    flock -w 2 9 || exit 0
+                fi
+                tail -n 200 "${_netlog_file}" > "${_netlog_file}.tmp" 2>/dev/null && mv -f "${_netlog_file}.tmp" "${_netlog_file}" || true
+            ) 9>"${_netlog_file}.lock"
         fi
     }
     trap cleanup_run EXIT
 
+    {
+        if command -v flock >/dev/null 2>&1; then
+            flock -w 5 9 || true
+        fi
+        local slot1_file="${_dualbox_dir}/slot_1.pid"
+        local slot1_pid=""
+        if [[ -f "${slot1_file}" ]]; then
+            slot1_pid=$(cat "${slot1_file}" 2>/dev/null || true)
+        fi
+        if [[ -n "${slot1_pid}" ]] && kill -0 "${slot1_pid}" 2>/dev/null; then
+            _instance_slot=2
+            _slot_pid_file="${_dualbox_dir}/slot_2.pid"
+        else
+            _instance_slot=1
+            _slot_pid_file="${slot1_file}"
+        fi
+        printf '%s\n' "$$" > "${_slot_pid_file}"
+
+        if [[ -n "${proxy_host}" ]]; then
+            local listen_port="${L2_AUTH_PROXY_PORT:-21060}"
+            if [[ -z "${L2_AUTH_PROXY_PORT:-}" ]] && command -v ss >/dev/null 2>&1; then
+                while ss -tln 2>/dev/null | grep -qE ":${listen_port}[[:space:]]"; do
+                    listen_port=$((listen_port + 1))
+                done
+            fi
+            local shim_so="${L2_PROJECT_ROOT}/tools/shims/l2_auth_redir.so"
+            local shim_32="${L2_PROJECT_ROOT}/tools/shims/lib/i386-linux-gnu/l2_auth_redir.so"
+            local shim_64="${L2_PROJECT_ROOT}/tools/shims/lib/x86_64-linux-gnu/l2_auth_redir.so"
+            if [[ ! -f "${shim_so}" && ! ( -f "${shim_32}" && -f "${shim_64}" ) ]]; then
+                log_error "Falta shim de red: ${shim_so}"
+                exit 1
+            fi
+            python3 "${SCRIPT_DIR}/l2_auth_proxy.py" \
+                --listen-port "${listen_port}" \
+                --target-host "${proxy_host}" \
+                --target-port "${proxy_port}" &
+            _L2_AUTH_PROXY_PID=$!
+            if command -v ss >/dev/null 2>&1; then
+                local _w=0
+                while (( _w < 40 )); do
+                    if ss -tln 2>/dev/null | grep -qE ":${listen_port}[[:space:]]"; then
+                        break
+                    fi
+                    sleep 0.05
+                    _w=$((_w + 1))
+                done
+            fi
+            export L2_AUTH_PROXY_PORT="${listen_port}"
+            export L2_AUTH_TARGET_PORT="${proxy_port}"
+            if [[ -f "${shim_32}" && -f "${shim_64}" ]]; then
+                export LD_PRELOAD="${L2_PROJECT_ROOT}/tools/shims/\$LIB/l2_auth_redir.so${LD_PRELOAD:+:${LD_PRELOAD}}"
+            else
+                export LD_PRELOAD="${shim_so}${LD_PRELOAD:+:${LD_PRELOAD}}"
+            fi
+            log_info "Auth relay activo en 127.0.0.1:${listen_port} -> ${proxy_host}:${proxy_port}"
+        fi
+    } 9>"${_dualbox_dir}/launch.lock"
+
     local has_active_l2=0
-    if command -v pgrep >/dev/null 2>&1 && pgrep -fi '[/\\]L2\.exe([[:space:]]|$)' >/dev/null 2>&1; then
+    if [[ "${_instance_slot}" -gt 1 ]]; then
+        has_active_l2=1
+    elif command -v pgrep >/dev/null 2>&1 && pgrep -fi '[/\\]L2\.exe([[:space:]]|$)' >/dev/null 2>&1; then
         has_active_l2=1
     fi
 
@@ -225,61 +318,20 @@ print("1" if srv.get("vkbasalt") else "0")
         fi
     fi
 
-    if [[ -n "${proxy_host}" ]]; then
-        local listen_port="${L2_AUTH_PROXY_PORT:-21060}"
-        if [[ -z "${L2_AUTH_PROXY_PORT:-}" ]] && command -v ss >/dev/null 2>&1; then
-            while ss -tln 2>/dev/null | grep -qE ":${listen_port}[[:space:]]"; do
-                listen_port=$((listen_port + 1))
-            done
-        fi
-        local shim_so="${L2_PROJECT_ROOT}/tools/shims/l2_auth_redir.so"
-        local shim_32="${L2_PROJECT_ROOT}/tools/shims/lib/i386-linux-gnu/l2_auth_redir.so"
-        local shim_64="${L2_PROJECT_ROOT}/tools/shims/lib/x86_64-linux-gnu/l2_auth_redir.so"
-        if [[ ! -f "${shim_so}" ]]; then
-            log_error "Falta shim de red: ${shim_so}"
-            exit 1
-        fi
-        python3 "${SCRIPT_DIR}/l2_auth_proxy.py" \
-            --listen-port "${listen_port}" \
-            --target-host "${proxy_host}" \
-            --target-port "${proxy_port}" &
-        _L2_AUTH_PROXY_PID=$!
-        export L2_AUTH_PROXY_PORT="${listen_port}"
-        export L2_AUTH_TARGET_PORT="${proxy_port}"
-        if [[ -f "${shim_32}" && -f "${shim_64}" ]]; then
-            export LD_PRELOAD="${L2_PROJECT_ROOT}/tools/shims/\$LIB/l2_auth_redir.so${LD_PRELOAD:+:${LD_PRELOAD}}"
-        else
-            export LD_PRELOAD="${shim_so}${LD_PRELOAD:+:${LD_PRELOAD}}"
-        fi
-        log_info "Auth relay activo en 127.0.0.1:${listen_port} -> ${proxy_host}:${proxy_port}"
-    fi
-
     if [[ -f "${client_system_dir}/Option.ini" ]]; then
         sed -i -E 's/^UseAGP=.*/UseAGP=False\r/; s/^GPUAnimation=.*/GPUAnimation=False\r/; s/^PostProc=.*/PostProc=0\r/; s/^StartupFullScreen=.*/StartupFullScreen=False\r/' "${client_system_dir}/Option.ini"
     fi
 
-    local peer_dir=""
-    if [[ "${s_id}" == "l2suda-optimizado" ]]; then
-        peer_dir="${L2_CLIENTS_DIR}/l2suda-asedio"
-    elif [[ "${s_id}" == "l2suda-asedio" ]]; then
-        peer_dir="${L2_CLIENTS_DIR}/l2suda-optimizado"
-    fi
-    if [[ -n "${peer_dir}" && -d "${peer_dir}" ]]; then
-        mkdir -p "${client_dir}/iwo" "${client_dir}/crest"
-        [[ -f "${peer_dir}/system/WindowsInfo.ini" ]] && cp -pu "${peer_dir}/system/WindowsInfo.ini" "${client_system_dir}/WindowsInfo.ini" 2>/dev/null || true
-        cp -pu "${peer_dir}/iwo/"* "${client_dir}/iwo/" 2>/dev/null || true
-        cp -pu "${peer_dir}/crest/"* "${client_dir}/crest/" 2>/dev/null || true
-        [[ -f "${client_system_dir}/WindowsInfo.ini" ]] && cp -pu "${client_system_dir}/WindowsInfo.ini" "${peer_dir}/system/WindowsInfo.ini" 2>/dev/null || true
-        cp -pu "${client_dir}/iwo/"* "${peer_dir}/iwo/" 2>/dev/null || true
-        cp -pu "${client_dir}/crest/"* "${peer_dir}/crest/" 2>/dev/null || true
-    fi
+    sync_ui_state
 
     export WINE="${runner_bin}"
     export WINEPREFIX="${prefix_path}"
     export DXVK_CONFIG_FILE="${client_system_dir}/dxvk.conf"
     export WINEDEBUG="${WINEDEBUG:--all}"
-    export __GL_THREADED_OPTIMIZATIONS="${__GL_THREADED_OPTIMIZATIONS:-1}"
     export PULSE_LATENCY_MSEC="${PULSE_LATENCY_MSEC:-60}"
+    if [[ "${opt_dxvk}" != "1" ]]; then
+        export __GL_THREADED_OPTIMIZATIONS="${__GL_THREADED_OPTIMIZATIONS:-1}"
+    fi
 
     if [[ "${opt_tcp_nodelay}" == "1" ]]; then
         export L2_TCP_NODELAY=1
@@ -294,6 +346,7 @@ print("1" if srv.get("vkbasalt") else "0")
     fi
     if [[ "${opt_af16x}" == "1" ]]; then
         export __GL_SHADER_DISK_CACHE=1
+        export __GL_SHADER_DISK_CACHE_SKIP_CLEANUP=1
         export __GL_SHADER_DISK_CACHE_PATH="${L2_TOOLS_DIR}/dxvk_cache"
         if [[ "${opt_dxvk}" != "1" ]]; then
             export __GL_Aniso=16
