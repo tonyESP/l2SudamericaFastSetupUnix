@@ -1,0 +1,12 @@
+[Interface]
+# Clave privada del cliente generada por tools/relay/setup_vps.sh
+PrivateKey = CLIENT_PRIVATE_KEY_HERE
+Address = 10.66.66.2/24
+
+[Peer]
+# Clave pública del VPS de São Paulo
+PublicKey = SERVER_PUBLIC_KEY_HERE
+Endpoint = YOUR_VPS_IP_HERE:51820
+# Split-Tunnel: SOLO el tráfico de L2 Sudamérica viaja por Brasil; el resto de tu internet no se toca
+AllowedIPs = 45.235.99.29/32, 10.66.66.1/32
+PersistentKeepalive = 25

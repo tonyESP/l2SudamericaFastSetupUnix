@@ -115,8 +115,27 @@ En Windows no hacen falta `l2_ctl.sh`, Wine, `l2_auth_redir.so` ni `l2_auth_prox
 
 ---
 
-## 5. Documentación Relacionada y Tests
+## 5. Relay de Baja Latencia (España ⟷ Brasil ⟷ Argentina)
 
+Para jugadores en Europa que deseen recortar la latencia de ~262 ms (ruta estándar vía Miami) a ~150-170 ms (vía enlace directo transatlántico):
+- **Guía completa de despliegue paso a paso**: [`docs/ROUTING_RELAY_GUIDE.md`](docs/ROUTING_RELAY_GUIDE.md)
+- **Aprovisionador del VPS en São Paulo**: [`tools/relay/setup_vps.sh`](tools/relay/setup_vps.sh)
+- **Controlador local de túnel Split-Tunneling**:
+  ```bash
+  # Auditar entorno y medir ping al VPS
+  ./scripts/relay_ctl.sh doctor
+  ./scripts/relay_ctl.sh test <IP_DEL_VPS>
+
+  # Activar / Desactivar ruta optimizada (Split-Tunnel: solo L2)
+  ./scripts/relay_ctl.sh up
+  ./scripts/relay_ctl.sh down
+  ```
+
+---
+
+## 6. Documentación Relacionada y Tests
+
+- Guía de optimización de enrutamiento y relay: [`docs/ROUTING_RELAY_GUIDE.md`](docs/ROUTING_RELAY_GUIDE.md)
 - Informe técnico detallado de diagnóstico: [`docs/L2_SUDAMERICA_LINUX.md`](docs/L2_SUDAMERICA_LINUX.md)
 - Arquitectura y reglas del proyecto: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`AGENTS.md`](AGENTS.md)
 - Guía de tuning y troubleshooting: [`.agents/skills/l2-graphics-tuning/SKILL.md`](.agents/skills/l2-graphics-tuning/SKILL.md)
