@@ -40,6 +40,18 @@ class TestL2CtlOrchestrator(unittest.TestCase):
         res = subprocess.run([L2_CTL, "invalid_cmd"], capture_output=True, text=True)
         self.assertIn("Uso:", res.stdout)
 
+    def test_usage_lists_stop_and_kill_commands(self):
+        res = subprocess.run([L2_CTL], capture_output=True, text=True)
+        self.assertIn("stop [server_id|all]", res.stdout)
+
+    def test_stop_command_safe_when_no_game_running(self):
+        res = subprocess.run([L2_CTL, "stop"], capture_output=True, text=True)
+        self.assertEqual(res.returncode, 0, f"Stop failed: {res.stderr}")
+        self.assertTrue(
+            "No hay instancias activas" in res.stdout or "No se encontraron procesos" in res.stdout,
+            f"Unexpected output: {res.stdout}"
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

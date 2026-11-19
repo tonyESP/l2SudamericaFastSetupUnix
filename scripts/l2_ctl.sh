@@ -448,25 +448,94 @@ cmd_update() {
     python3 "${SCRIPT_DIR}/l2_updater.py" "${updater_args[@]}"
 }
 
+cmd_stop() {
+    local target="${1:-all}"
+    local dualbox_dir="/tmp/l2_dualbox_${UID}"
+    local killed_any=false
+
+    log_info "Comprobando procesos activos de Lineage 2 (objetivo: ${target})..."
+
+    if [[ -d "${dualbox_dir}" ]]; then
+        for slot_f in "${dualbox_dir}"/slot_*.pid; do
+            if [[ -f "${slot_f}" ]]; then
+                local spid
+                spid=$(cat "${slot_f}" 2>/dev/null || true)
+                if [[ -n "${spid}" && "${spid}" =~ ^[0-9]+$ ]]; then
+                    if kill -0 "${spid}" 2>/dev/null; then
+                        log_info "Deteniendo proceso en slot (${slot_f##*/}: PID ${spid})..."
+                        kill -15 "${spid}" 2>/dev/null || true
+                        sleep 0.5
+                        if kill -0 "${spid}" 2>/dev/null; then
+                            kill -9 "${spid}" 2>/dev/null || true
+                        fi
+                        killed_any=true
+                    fi
+                fi
+                rm -f "${slot_f}"
+            fi
+        done
+        rm -f "${dualbox_dir}/launch.lock"
+    fi
+
+    local pids
+    if [[ "${target}" == "all" || -z "${target}" ]]; then
+        pids=$(pgrep -f "L2\.exe" 2>/dev/null || true)
+    else
+        pids=$(pgrep -f "clients/${target}/" 2>/dev/null || pgrep -f "${target}" 2>/dev/null || true)
+    fi
+
+    if [[ -n "${pids}" ]]; then
+        for pid in ${pids}; do
+            log_info "Terminando proceso L2 (PID ${pid})..."
+            kill -15 "${pid}" 2>/dev/null || true
+            sleep 0.5
+            if kill -0 "${pid}" 2>/dev/null; then
+                kill -9 "${pid}" 2>/dev/null || true
+            fi
+            killed_any=true
+        done
+    fi
+
+    if [[ "${target}" == "all" ]]; then
+        local wine_pids
+        wine_pids=$(pgrep -f "wineserver" 2>/dev/null || true)
+        if [[ -n "${wine_pids}" ]]; then
+            log_info "Terminando wineserver..."
+            pkill -15 -f "wineserver" 2>/dev/null || true
+            sleep 0.5
+            pkill -9 -f "wineserver" 2>/dev/null || true
+            killed_any=true
+        fi
+    fi
+
+    if [[ "${killed_any}" == "true" ]]; then
+        log_success "Instancias de Lineage 2 y recursos asociados detenidos correctamente."
+    else
+        log_info "No hay instancias activas de Lineage 2 para detener."
+    fi
+}
+
 usage() {
-    echo "Uso: $0 {list|doctor|download <args>|update [id]|setup <server_id>|run <server_id>}"
+    echo "Uso: $0 {list|doctor|download <args>|update [id]|setup <server_id>|run <server_id>|stop [server_id|all]}"
     echo ""
     echo "Comandos:"
-    echo "  list               Lista los servidores y el estado de clientes y prefijos"
-    echo "  doctor             Verifica hardware, controladores y dependencias de ejecución"
-    echo "  download <args>    Gestiona la descarga y extracción de clientes (download_clients.sh)"
-    echo "  update [id]        Sincroniza parches del servidor (sin pisar DXVK) y re-parchea D3DDrv.dll"
-    echo "  setup <server_id>  Aprovisiona de forma desatendida el prefijo Wine y aplica el fine-tuning"
-    echo "  run <server_id>    Lanza el juego con aceleración NVIDIA y DXVK"
+    echo "  list                 Lista los servidores y el estado de clientes y prefijos"
+    echo "  doctor               Verifica hardware, controladores y dependencias de ejecución"
+    echo "  download <args>      Gestiona la descarga y extracción de clientes (download_clients.sh)"
+    echo "  update [id]          Sincroniza parches del servidor (sin pisar DXVK) y re-parchea D3DDrv.dll"
+    echo "  setup <server_id>    Aprovisiona de forma desatendida el prefijo Wine y aplica el fine-tuning"
+    echo "  run <server_id>      Lanza el juego con aceleración NVIDIA y DXVK"
+    echo "  stop [server_id|all] Detiene limpiamente las instancias de L2 y libera bloqueos dual-box"
     echo ""
 }
 
 case "${1:-}" in
-    list)     cmd_list ;;
-    doctor)   cmd_doctor ;;
-    download) shift; cmd_download "$@" ;;
-    update)   shift; cmd_update "$@" ;;
-    setup)    shift; cmd_setup "$@" ;;
-    run)      shift; cmd_run "$@" ;;
-    *)        usage ;;
+    list)      cmd_list ;;
+    doctor)    cmd_doctor ;;
+    download)  shift; cmd_download "$@" ;;
+    update)    shift; cmd_update "$@" ;;
+    setup)     shift; cmd_setup "$@" ;;
+    run)       shift; cmd_run "$@" ;;
+    stop|kill) shift; cmd_stop "$@" ;;
+    *)         usage ;;
 esac

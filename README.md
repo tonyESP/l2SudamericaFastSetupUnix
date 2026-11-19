@@ -93,6 +93,9 @@ for f in config/l2suda-*.desktop; do sed "s|/mnt/disk4u/L2|$(pwd)|g" "$f" > ~/.l
 
 # Arrancar
 ./scripts/l2_ctl.sh run l2suda-optimizado
+
+# Detener limpiamente instancias y liberar bloqueos dual-box en caso de cuelgue
+./scripts/l2_ctl.sh stop all
 ```
 
 ---

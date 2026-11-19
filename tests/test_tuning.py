@@ -91,6 +91,8 @@ class TestTuningTemplates(unittest.TestCase):
                 lines = [ln.strip() for ln in f if ln.strip() and not ln.lstrip().startswith("#")]
             self.assertIn("dxvk.enableGraphicsPipelineLibrary = Auto", lines)
             self.assertIn("dxvk.numCompilerThreads = 4", lines)
+            self.assertIn("d3d9.deviceLossOnFocusLoss = True", lines)
+            self.assertNotIn("d3d9.deviceLossOnFocusLoss = False", lines)
 
 
 if __name__ == "__main__":

@@ -71,3 +71,36 @@ Skill de referencia para diagnosticar y resolver bloqueos reales de clientes pri
 ### Causa raíz y solución
 - Un cliente vanilla (`Interlude.7z`) + `updater.ini` **no** incluye paquetes custom de monturas/NPCs que solo vienen dentro del cliente completo del servidor (p. ej. `l2Sudamerica_fafureon_30.rar`).
 - Extraer siempre primero el archivo completo de Interface del servidor antes de ejecutar `updater_sync.py`.
+
+## 7. Pantalla negra permanente al minimizar/desminimizar en Linux (`d3d9.deviceLossOnFocusLoss`)
+
+### Síntoma
+- El cliente está corriendo en modo ventana o sin bordes bajo Wine + DXVK.
+- Al pulsar el botón de minimizar a la barra de tareas y luego hacer clic en la ventana para restaurarla, la ventana queda completamente en negro.
+- En la telemetría de red, el socket TCP sigue vivo y recibiendo paquetes del GameServer (`data_segs_in` crece), pero `data_segs_out` queda completamente congelado (deadlock del bucle de presentación).
+
+### Causa raíz
+- En Linux (X11 / compositores como Cinnamon/Muffin o KWin), minimizar la ventana desmapea la superficie gráfica (`UnmapNotify`, 0x0 píxeles).
+- En Vulkan, el swapchain pasa a estado `VK_ERROR_OUT_OF_DATE_KHR`.
+- Si DXVK tiene `d3d9.deviceLossOnFocusLoss = False`, le oculta a Direct3D 9 la pérdida de dispositivo. El motor de L2 (`D3DDrv.dll`) asume que la superficie sigue intacta y **nunca invoca `IDirect3DDevice9::Reset()`**.
+- Al desminimizar, DXVK no tiene orden de recrear el swapchain y el motor intenta pintar en un búfer nulo, resultando en una pantalla negra perpetua.
+
+### Solución integrada
+1. Establecer obligatoriamente en `dxvk.conf` y plantillas:
+   ```ini
+   d3d9.deviceLossOnFocusLoss = True
+   ```
+2. Al perder foco/minimizar, DXVK notifica `D3DERR_DEVICELOST`. Al restaurar, devuelve `D3DERR_DEVICENOTRESET`, obligando a `D3DDrv.dll` a llamar a `Reset()` y reconstruir el swapchain de Vulkan de inmediato.
+3. Si `vkBasalt` pierde sincronía de shaders al redimensionar, la tecla `Home` / `Inicio` permite alternar el postprocesado en caliente para forzar el repintado del frame nativo.
+
+## 8. Gestión de cuelgues y limpieza de recursos dual-box (`stop` / `kill`)
+
+Para terminar de forma segura instancias colgadas sin dejar sockets huérfanos ni locks de dual-box:
+```bash
+# Detener todas las instancias de L2 y procesos asociados limpiamente
+./scripts/l2_ctl.sh stop all
+
+# O detener un perfil específico
+./scripts/l2_ctl.sh stop l2suda-optimizado
+```
+El comando purga los PIDs en `/tmp/l2_dualbox_${UID}/slot_*.pid`, libera `launch.lock` y mata los procesos huérfanos con SIGTERM y SIGKILL si no responden.
