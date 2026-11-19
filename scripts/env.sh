@@ -40,6 +40,9 @@ mkdir -p "${DXVK_STATE_CACHE_PATH}"
 export WINEESYNC=1
 export WINEFSYNC=1
 
+# Wine low-latency audio for snappy Soulshots and spell effects (PipeWire/PulseAudio)
+export PULSE_LATENCY_MSEC=30
+
 # Helper colors
 C_RESET='\033[0m'
 C_RED='\033[0;31m'

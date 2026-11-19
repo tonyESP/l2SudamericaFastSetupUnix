@@ -20,6 +20,9 @@ d3d9.deferSurfaceCreation = True
 # Allow full VRAM utilization without legacy 2006 memory cap
 d3d9.textureMemory = 0
 
+# Cache dynamic vertex and index buffers to reduce CPU overhead during character animations/particles
+d3d9.cachedDynamicBuffers = True
+
 # Reduce render-queue input latency and trigger D3D9 device reset on unminimize/restore
 dxvk.latencySleep = True
 dxvk.allowFse = False

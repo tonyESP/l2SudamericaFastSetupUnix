@@ -80,6 +80,7 @@ class TestTuningTemplates(unittest.TestCase):
             env_content = f.read()
         self.assertNotIn('L2_PROJECT_ROOT="/mnt/disk4u/L2"', env_content)
         self.assertNotIn("/home/floky", env_content)
+        self.assertIn("PULSE_LATENCY_MSEC=30", env_content)
 
         apply_path = os.path.join(PROJECT_ROOT, "scripts", "apply_tuning.sh")
         with open(apply_path, "r", encoding="utf-8") as f:
@@ -93,6 +94,7 @@ class TestTuningTemplates(unittest.TestCase):
             self.assertIn("dxvk.numCompilerThreads = 4", lines)
             self.assertIn("d3d9.deviceLossOnFocusLoss = True", lines)
             self.assertNotIn("d3d9.deviceLossOnFocusLoss = False", lines)
+            self.assertIn("d3d9.cachedDynamicBuffers = True", lines)
 
 
 if __name__ == "__main__":
