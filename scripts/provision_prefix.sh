@@ -83,6 +83,15 @@ log_info "Instalando dependencias desatendidas: ${TRICKS[*]}..."
 if [[ -f "${PREFIX_PATH}/user.reg" ]]; then
     sed -i -E 's/^"MouseSpeed"=.*/"MouseSpeed"="0"/; s/^"MouseThreshold1"=.*/"MouseThreshold1"="0"/; s/^"MouseThreshold2"=.*/"MouseThreshold2"="0"/' "${PREFIX_PATH}/user.reg"
     log_info "Aceleración de ratón desactivada en user.reg (giro 1:1)."
+
+    if ! grep -q '\[Software\\\\Wine\\\\WineDbg\]' "${PREFIX_PATH}/user.reg"; then
+        cat << 'EOF' >> "${PREFIX_PATH}/user.reg"
+
+[Software\\Wine\\WineDbg]
+"ShowCrashDialog"=dword:00000000
+EOF
+        log_info "Ventanas emergentes de crash desactivadas en WineDbg."
+    fi
 fi
 
 # Copy DXVK config template if available
