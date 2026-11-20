@@ -105,6 +105,18 @@ class TestWinePrefixes(unittest.TestCase):
                 self.assertIn("d3d9.maxFrameRate", content)
                 self.assertIn("dxvk.enableAsync", content)
 
+    def test_prefix_wine_focus_and_crash_settings(self):
+        """Verifies that user.reg disables ShowCrashDialog and configures UseTakeFocus=N to prevent lockups."""
+        for server_id, server in self.servers.items():
+            with self.subTest(server=server_id):
+                prefix_path = os.path.join(PROJECT_ROOT, server["prefix_dir"])
+                user_reg = os.path.join(prefix_path, "user.reg")
+                with open(user_reg, "r", encoding="utf-8", errors="ignore") as f:
+                    content = f.read()
+                self.assertIn('"ShowCrashDialog"=dword:00000000', content)
+                self.assertIn(r'[Software\Wine\X11 Driver]', content)
+                self.assertIn('"UseTakeFocus"="N"', content)
+
 
 if __name__ == "__main__":
     unittest.main()

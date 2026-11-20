@@ -41,7 +41,7 @@ Para llevar el cliente más allá de WineD3D sin tocar `l2.ini` (cifrado RSA) ni
 - **DXVK (`dxvk.conf`)**:
   - `d3d9.maxFrameRate = 60` (ajustado al panel real `60.06 Hz` para evitar *thermal throttling*).
   - `d3d9.presentInterval = 0`, `d3d9.maxFrameLatency = 1`, `dxvk.latencySleep = True`.
-  - `dxvk.allowFse = False`, `d3d9.deviceLossOnFocusLoss = True` (evita bloqueos de pantalla negra al desminimizar o restaurar ventanas en Linux).
+  - `dxvk.allowFse = False`, `d3d9.deviceLossOnFocusLoss = False` (mantiene el dispositivo D3D9 activo y evita pantallas negras irrecuperables al pulsar la tecla Windows/Super o hacer Alt-Tab; complementado con `UseTakeFocus=N` en Wine X11 Driver).
   - `d3d9.samplerAnisotropy = 16`, `d3d9.samplerLodBias = -0.25`, `d3d9.clampNegativeLodBias = False`, `d3d9.seamlessCubes = True`, `dxvk.numCompilerThreads = 4` (evita *shimmer*/trama en DXT de 2006 y contención de hilos en dual-box).
 - **Sistema y Red (`l2_ctl.sh`, `l2_auth_redir.so`, `l2_auth_proxy.py`)**:
   - Catálogo de 3 perfiles operativos:

@@ -92,6 +92,15 @@ if [[ -f "${PREFIX_PATH}/user.reg" ]]; then
 EOF
         log_info "Ventanas emergentes de crash desactivadas en WineDbg."
     fi
+
+    if ! grep -q '\[Software\\\\Wine\\\\X11 Driver\]' "${PREFIX_PATH}/user.reg"; then
+        cat << 'EOF' >> "${PREFIX_PATH}/user.reg"
+
+[Software\\Wine\\X11 Driver]
+"UseTakeFocus"="N"
+EOF
+        log_info "UseTakeFocus=N configurado en X11 Driver (evita bloqueos de foco con GNOME/Super)."
+    fi
 fi
 
 # Copy DXVK config template if available

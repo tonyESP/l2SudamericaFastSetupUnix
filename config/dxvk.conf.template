@@ -23,10 +23,10 @@ d3d9.textureMemory = 0
 # Cache dynamic vertex and index buffers to reduce CPU overhead during character animations/particles
 d3d9.cachedDynamicBuffers = True
 
-# Reduce render-queue input latency and trigger D3D9 device reset on unminimize/restore
+# Reduce render-queue input latency and prevent false D3D9 device loss on focus switch/Super key
 dxvk.latencySleep = True
 dxvk.allowFse = False
-d3d9.deviceLossOnFocusLoss = True
+d3d9.deviceLossOnFocusLoss = False
 
 # Modern Graphics Pipeline Library (VK_EXT_graphics_pipeline_library)
 # Replaces legacy dxvk.enableAsync = True for stutter-free shader compilation
