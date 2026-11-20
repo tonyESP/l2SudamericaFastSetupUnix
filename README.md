@@ -4,6 +4,36 @@ Repositorio de ingeniería para aprovisionar, optimizar y ejecutar **Lineage 2 I
 
 ---
 
+## ⚡ Instalación y Optimización en 1 Click (Para ti o un colega)
+
+### En Linux (Ubuntu / Mint / Debian / Arch / Fedora / SteamOS)
+Tan fácil como clonar y ejecutar el instalador:
+```bash
+git clone git@github.com:tonyESP/l2SudamericaFastSetupUnix.git L2
+cd L2
+./quick_setup.sh
+```
+*(O haz doble click sobre el archivo **`Instalar-L2-Sudamerica.desktop`** desde tu gestor de archivos).*
+
+**¿Qué hace automáticamente `./quick_setup.sh`?**
+1. Comprueba multiarch (`i386`) y dependencias del sistema (`curl`, `7z`, `python3`, `gamemode`).
+2. Verifica y activa los shims de red de baja latencia (`l2_auth_redir.so` 32/64 bits con `TCP_QUICKACK` continuo y QoS DSCP EF).
+3. Descarga e instala **Wine-GE** (GloriousEggroll) y **DXVK 32-bit** (`d3d9.dll`, `dxgi.dll`).
+4. Si ya tienes el cliente o el archivo `.rar` en `downloads/` o tu carpeta de Descargas, lo extrae y normaliza la estructura de carpetas automáticamente.
+5. Crea al instante el perfil secundario para Asedios (`l2suda-asedio`) compartiendo archivos pesados con enlaces duros (0 GB de espacio duplicado).
+6. Aprovisiona los prefijos Wine 32-bit (ratón lineal 1:1, suprime alertas GPF de cierre y bloqueos por foco de ventana).
+7. Inyecta el fine-tuning calibrado (`Option.ini`, `dxvk.conf`, `vkBasalt.conf`).
+8. Instala los accesos directos con icono oficial en tu Menú de Aplicaciones y en tu Escritorio.
+
+### En Windows 10/11
+Si tu colega juega en Windows, solo necesita clonar y ejecutar:
+```cmd
+setup_windows.cmd
+```
+Le permitirá inyectar en 1 click el perfil Remaster Diario o el perfil Asedios Ultra-FPS con su respaldo automático de `Option.ini`.
+
+---
+
 ## 1. Los 3 Perfiles Disponibles (`config/servers.json`)
 
 | Perfil (`server_id`) | Uso recomendado | Pila gráfica y ajustes clave |
@@ -54,7 +84,7 @@ sudo apt install -y git curl p7zip-full unrar python3 python3-pil \
 
 ### Paso 2: Clonar, compilar shims y verificar el entorno
 ```bash
-git clone <TU_REPO_GITHUB> L2 && cd L2
+git clone git@github.com:tonyESP/l2SudamericaFastSetupUnix.git L2 && cd L2
 
 # Recompilar shims 64-bit y 32-bit
 mkdir -p tools/shims/lib/x86_64-linux-gnu tools/shims/lib/i386-linux-gnu

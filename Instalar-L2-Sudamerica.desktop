@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Instalar L2 Sudamérica (1-Click Setup)
+Comment=Instalador y optimizador automático para Lineage 2 Sudamérica en Linux
+Exec=bash -c 'cd "$(dirname "%k")" 2>/dev/null || cd "$(pwd)"; ./quick_setup.sh; echo; read -p "Presiona Enter para cerrar..."'
+Icon=utilities-terminal
+Terminal=true
+Categories=Game;Utility;
+StartupNotify=true
