@@ -116,29 +116,39 @@ else
     echo -e "  [OK] Descompresor (7z/unrar)"
 fi
 
+# Check optional performance tools
+check_cmd gamemode gamemode || log_info "  (gamemode es opcional pero recomendado para máximo frametime)"
+check_cmd winetricks winetricks || log_info "  (winetricks se descargará automáticamente si no está instalado)"
+
 # Check multilib i386 if dpkg exists
 if command -v dpkg >/dev/null 2>&1; then
     if dpkg --print-foreign-architectures | grep -q "i386"; then
         echo -e "  [OK] Arquitectura multiarch i386 habilitada"
     else
-        echo -e "  ${C_YELLOW}[AVISO]${C_RESET} multiarch i386 no está habilitada. Recomendado: sudo dpkg --add-architecture i386"
+        echo -e "  ${C_YELLOW}[AVISO]${C_RESET} multiarch i386 no está habilitada. Ejecuta: sudo dpkg --add-architecture i386"
     fi
 fi
 
 if [[ ${MISSING_DEPS} -gt 0 && ${DRY_RUN} -eq 0 ]]; then
-    log_warn "Faltan ${MISSING_DEPS} dependencias en el sistema."
+    log_warn "Faltan ${MISSING_DEPS} dependencias esenciales en el sistema."
     if command -v apt-get >/dev/null 2>&1; then
-        log_info "Puedes instalarlas con:"
+        log_info "Comando sugerido (Ubuntu / Linux Mint / Debian):"
         echo "  sudo dpkg --add-architecture i386 && sudo apt update"
-        echo "  sudo apt install -y curl p7zip-full unrar python3 gcc gcc-multilib gamemode"
+        echo "  sudo apt install -y curl p7zip-full unrar python3 gamemode winetricks"
         if [[ ${NON_INTERACTIVE} -eq 0 ]]; then
             read -r -p "¿Deseas que intente instalarlas con sudo apt ahora? (s/N): " install_ans || true
             if [[ "${install_ans:-}" =~ ^[sSyY]$ ]]; then
                 sudo dpkg --add-architecture i386 || true
                 sudo apt-get update || true
-                sudo apt-get install -y curl p7zip-full unrar python3 gcc gcc-multilib gamemode || true
+                sudo apt-get install -y curl p7zip-full unrar python3 gamemode winetricks || true
             fi
         fi
+    elif command -v pacman >/dev/null 2>&1; then
+        log_info "Comando sugerido (Arch Linux / Manjaro):"
+        echo "  sudo pacman -S --needed python curl p7zip gamemode winetricks"
+    elif command -v dnf >/dev/null 2>&1; then
+        log_info "Comando sugerido (Fedora):"
+        echo "  sudo dnf install -y python3 curl p7zip p7zip-plugins gamemode winetricks"
     fi
 fi
 
@@ -352,20 +362,25 @@ log_info "Paso 7/7: Instalando lanzadores en el menú de aplicaciones y escritor
 
 if [[ ${DRY_RUN} -eq 0 ]]; then
     APPS_DIR="${HOME}/.local/share/applications"
-    mkdir -p "${APPS_DIR}"
-    
-    for dt in "${L2_CONFIG_DIR}"/l2suda-*.desktop; do
-        if [[ -f "${dt}" ]]; then
-            dest_file="${APPS_DIR}/$(basename "${dt}")"
-            sed "s|/mnt/disk4u/L2|${L2_PROJECT_ROOT}|g" "${dt}" > "${dest_file}"
-            chmod +x "${dest_file}"
-            log_success "Lanzador instalado: ${dest_file}"
+    if mkdir -p "${APPS_DIR}" 2>/dev/null && [[ -w "${APPS_DIR}" ]]; then
+        for dt in "${L2_CONFIG_DIR}"/l2suda-*.desktop; do
+            if [[ -f "${dt}" ]]; then
+                dest_file="${APPS_DIR}/$(basename "${dt}")"
+                sed "s|/mnt/disk4u/L2|${L2_PROJECT_ROOT}|g" "${dt}" > "${dest_file}"
+                chmod +x "${dest_file}"
+                log_success "Lanzador instalado: ${dest_file}"
+            fi
+        done
+        if command -v update-desktop-database >/dev/null 2>&1; then
+            update-desktop-database "${APPS_DIR}" 2>/dev/null || true
         fi
-    done
+    else
+        log_warn "No se pudo escribir en ${APPS_DIR} (entorno restringido o sin permisos). Los accesos directos se mantienen en ${L2_CONFIG_DIR}."
+    fi
 
-    # Also install on Desktop if Desktop folder exists
+    # Also install on Desktop if Desktop folder exists and is writable
     for desktop_dir in "${HOME}/Desktop" "${HOME}/Escritorio"; do
-        if [[ -d "${desktop_dir}" ]]; then
+        if [[ -d "${desktop_dir}" && -w "${desktop_dir}" ]]; then
             for dt in "${L2_CONFIG_DIR}"/l2suda-*.desktop; do
                 if [[ -f "${dt}" ]]; then
                     dest_file="${desktop_dir}/$(basename "${dt}")"

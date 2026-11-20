@@ -71,6 +71,15 @@ class TestQuickSetup(unittest.TestCase):
             self.assertFalse(f.startswith("prefixes/") and not f.endswith(".gitkeep"), f"Prefix file tracked: {f}")
             self.assertFalse(f == ".env" or f.endswith(".local") or f.endswith(".local.json"), f"Secret file tracked: {f}")
 
+    def test_ai_agent_instructions_exist(self):
+        """Verifies AGENTS.md, CLAUDE.md, and .cursorrules exist with operational commands."""
+        for filename in ["AGENTS.md", "CLAUDE.md", ".cursorrules"]:
+            path = os.path.join(PROJECT_ROOT, filename)
+            self.assertTrue(os.path.isfile(path), f"Missing AI guide file: {filename}")
+            with open(path, "r", encoding="utf-8") as f:
+                content = f.read()
+            self.assertIn("quick_setup.sh", content, f"quick_setup.sh not mentioned in {filename}")
+
 
 if __name__ == "__main__":
     unittest.main()

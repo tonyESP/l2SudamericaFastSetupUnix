@@ -1,0 +1,9 @@
+# Cursor AI Rules for L2 Linux Core
+# Refer to AGENTS.md for full directives and engineering standards.
+
+Always follow:
+1. Setup command: `./quick_setup.sh --non-interactive`
+2. Test command: `python3 -m unittest discover -s tests -p "test_*.py" -v`
+3. Never commit binary archives, client files, prefixes, or .env.
+4. Ban-safe policy: never modify .utx, l2.ini, or L2.exe directly.
+5. Invariants: StartupFullScreen=False, UseAGP=False, GPUAnimation=False, PostProc=0.

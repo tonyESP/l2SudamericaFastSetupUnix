@@ -7,7 +7,25 @@ Repositorio de ingeniería para aprovisionar, optimizar y ejecutar **Lineage 2 I
 ## ⚡ Instalación y Optimización en 1 Click (Para ti o un colega)
 
 ### En Linux (Ubuntu / Mint / Debian / Arch / Fedora / SteamOS)
-Tan fácil como clonar y ejecutar el instalador:
+
+#### 1. Dependencias del sistema (1 solo comando según tu distribución)
+El entorno utiliza herramientas estándar de Linux y **Python 3 nativo** (solo módulos estándar de la biblioteca base; no requiere `pip` ni entornos virtuales `venv`):
+
+- **Ubuntu / Linux Mint / Debian**:
+  ```bash
+  sudo dpkg --add-architecture i386 && sudo apt update
+  sudo apt install -y python3 curl tar p7zip-full gamemode winetricks
+  ```
+- **Arch Linux / Manjaro**:
+  ```bash
+  sudo pacman -S --needed python curl p7zip gamemode winetricks lib32-vulkan-driver
+  ```
+- **Fedora**:
+  ```bash
+  sudo dnf install -y python3 curl p7zip p7zip-plugins gamemode winetricks
+  ```
+
+#### 2. Clonar y Lanzar Instalador 1-Click
 ```bash
 git clone git@github.com:tonyESP/l2SudamericaFastSetupUnix.git L2
 cd L2
